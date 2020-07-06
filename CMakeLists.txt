@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 set(CMAKE_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
 set(THREADS_PREFER_PTHREAD_FLAG ON)
+set(COVERAGE_COMPILE_FLAGS "-mavx")
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${COVERAGE_COMPILE_FLAGS}")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   file(GLOB SDL2_SHARED_BINARIES
@@ -57,6 +59,7 @@ target_include_directories(Client PRIVATE
   src/netmodules
   src/physics
   src/project
+  src/project/fractalsets
   src/res
   src/screens
   src/throwmacros
@@ -74,6 +77,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     deps/SFGUI/include
     deps/Box2D/include
     deps/JCash/include
+    deps/SIMD/include
   )
   target_link_directories(Client PRIVATE
     deps/SFML/lib
@@ -135,6 +139,7 @@ target_include_directories(Server PRIVATE
   src/netmodules
   src/physics
   src/project
+  src/project/fractalsets
   src/res
   src/screens
   src/throwmacros
@@ -152,6 +157,7 @@ set_target_properties(Server PROPERTIES
     deps/SFGUI/include
     deps/Box2D/include
     deps/JCash/include
+    deps/SIMD/include
   )
   target_link_directories(Server PRIVATE
     deps/SFML/lib

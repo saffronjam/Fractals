@@ -2,6 +2,8 @@
 
 #include "IScreen.h"
 
+#include "FractalMgr.h"
+
 class AppClient;
 
 class ClientMainScreen : public IScreen
@@ -31,4 +33,6 @@ private:
 
 private:
     AppClient &m_parent;
+
+    FractalMgr m_fractalMgr;
 };
