@@ -5,6 +5,7 @@
 #include <mutex>
 
 #include "Mandelbrot.h"
+#include "Julia.h"
 
 class FractalMgr
 {
@@ -15,7 +16,9 @@ public:
     void Update();
     void Draw();
 
-    void SetFractal(const std::string &fractal);
+    const std::map<std::string, FractalSet *> &GetFractalSets() const noexcept { return m_fractalSets; }
+
+    void SetFractalSet(const std::string &fractal);
     void SetIterationCount(size_t iterations);
 
 private:

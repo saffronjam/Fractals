@@ -50,11 +50,23 @@ void ClientMainScreen::OnEntry()
     boxIterNum->Pack(scaleIterNum, false, false);
     boxIterNum->SetRequisition(sf::Vector2f(150.0f, 0.0f));
 
+    // -------------- FRACTAL SET CHOICE --------------------
+    auto comboBoxFractalChoice = sfg::ComboBox::Create();
+    for (auto &[name, fractalSet] : m_fractalMgr.GetFractalSets())
+        comboBoxFractalChoice->AppendItem(name);
+    comboBoxFractalChoice->SelectItem(0);
+
+    comboBoxFractalChoice->GetSignal(sfg::ComboBox::OnSelect).Connect([this, comboBoxFractalChoice] {
+        const auto selectedItem = comboBoxFractalChoice->GetSelectedItem();
+        m_fractalMgr.SetFractalSet(comboBoxFractalChoice->GetItem(selectedItem));
+    });
+
     // --------------- SUB BOXES ----------------------
 
     // -------------- ADD TO MAIN BOX ------------------
     auto mainBox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 15.0f);
     mainBox->Pack(boxIterNum, false);
+    mainBox->Pack(comboBoxFractalChoice, false);
 
     // -------------- ADD TO MAIN WINDOW ------------------
     auto window = sfg::Window::Create(sfg::Window::Style::BACKGROUND);

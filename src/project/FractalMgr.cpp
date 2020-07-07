@@ -5,6 +5,7 @@ FractalMgr::FractalMgr()
       m_iterations(64)
 {
     m_fractalSets.emplace(std::make_pair("Mandelbrot", new Mandelbrot()));
+    m_fractalSets.emplace(std::make_pair("Julia", new Julia()));
 
     m_activeFractalSet = "Mandelbrot";
 }
@@ -47,9 +48,10 @@ void FractalMgr::Draw()
     }
 }
 
-void FractalMgr::SetFractal(const std::string &fractal)
+void FractalMgr::SetFractalSet(const std::string &fractal)
 {
     m_activeFractalSet = fractal;
+    m_fractalSets.at(m_activeFractalSet)->Start(m_lastViewport);
     m_fractalSets.at(m_activeFractalSet)->ReconstructImage();
 }
 

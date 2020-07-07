@@ -1,15 +1,15 @@
-#include "Mandelbrot.h"
+#include "Julia.h"
 
-Mandelbrot::Mandelbrot()
-    : FractalSet("Mandelbrot")
+Julia::Julia()
+    : FractalSet("Julia")
 {
     for (int i = 0; i < 32; i++)
     {
-        AddWorker(new MandelbrotWorker);
+        AddWorker(new JuliaWorker);
     }
 }
 
-void Mandelbrot::MandelbrotWorker::Compute()
+void Julia::JuliaWorker::Compute()
 {
     while (alive)
     {
@@ -85,6 +85,7 @@ void Mandelbrot::MandelbrotWorker::Compute()
             y_pos += yScale;
             y_offset += row_size;
         }
+
         m_nWorkerComplete++;
     }
 }
