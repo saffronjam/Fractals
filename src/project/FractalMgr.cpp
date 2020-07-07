@@ -35,7 +35,7 @@ void FractalMgr::Draw()
 void FractalMgr::SetFractal(const std::string &fractal)
 {
     m_activeFractalSet = fractal;
-    // m_fractalSets.at(m_activeFractalSet)->ReconstructImage();
+    m_fractalSets.at(m_activeFractalSet)->ReconstructImage();
 }
 
 void FractalMgr::SetIterationCount(size_t iterations)
