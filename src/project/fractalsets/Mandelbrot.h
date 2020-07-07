@@ -9,7 +9,7 @@ class Mandelbrot : public FractalSet
 public:
     Mandelbrot();
 
-    void Start(const sf::FloatRect &rect) override;
+    void Start(const std::pair<sf::Vector2f, sf::Vector2f> &viewport) override;
 
 private:
     std::vector<Worker> m_workers;
@@ -18,11 +18,10 @@ private:
 private:
     struct Worker
     {
-        sf::VertexArray *vertexArray;
+        int *fractalArray;
 
         int screenWidth = 0;
-        sf::Vector2i vertexArrayTL = {0, 0};
-        sf::Vector2i vertexArrayBR = {0, 0};
+        sf::Vector2i fractalImageSize = {0, 0};
         sf::Vector2i fractalTL = {0, 0};
         sf::Vector2i fractalBR = {0, 0};
 

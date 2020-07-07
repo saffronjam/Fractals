@@ -203,6 +203,15 @@ sf::FloatRect Camera::WorldToScreen(const sf::FloatRect &rect) noexcept
     return m_transform.transformRect(rect);
 }
 
+std::pair<sf::Vector2f, sf::Vector2f> Camera::GetViewport() noexcept
+{
+    auto screenRect = Window::GetScreenRect();
+    auto TL = sf::Vector2f(screenRect.left, screenRect.top);
+    auto BR = sf::Vector2f(screenRect.left + screenRect.width, screenRect.top + screenRect.height);
+
+    return std::make_pair(m_transform.getInverse().transformPoint(TL), m_transform.getInverse().transformPoint(BR));
+}
+
 void Camera::UpdateTransform() noexcept
 {
     const sf::Vector2f offset(Lib::ConvertTo<float>(Window::GetSize()) / 2.0f);

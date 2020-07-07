@@ -12,14 +12,14 @@ public:
     FractalMgr();
     ~FractalMgr();
 
-    void Start();
+    void Update();
+    void Draw();
 
     void SetFractal(const std::string &fractal);
-
-protected:
-    void ComputeFractals();
 
 private:
     std::map<std::string, FractalSet *> m_fractalSets;
     std::string m_activeFractalSet;
+
+    std::pair<sf::Vector2f, sf::Vector2f> m_lastViewport;
 };

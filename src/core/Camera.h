@@ -55,8 +55,8 @@ public:
     ///@param rect: rect to be translated from world to screen space.
     static sf::FloatRect WorldToScreen(const sf::FloatRect &rect) noexcept;
 
-    static sf::FloatRect GetViewPort() noexcept { return m_transform.transformRect(Lib::ConvertTo<float>(Window::GetScreenRect())); }
-    static sf::Vector2f GetViewSize() noexcept { return m_transform.transformPoint(GetViewPort().width, GetViewPort().height); }
+    /// @return: std::pair of sf::Vectors, top left and bottom right
+    static std::pair<sf::Vector2f, sf::Vector2f> GetViewport() noexcept;
     static sf::Vector2f GetOffset() noexcept { return Lib::ConvertTo<float>(Window::GetSize()) / 2.0f; }
     static float GetZoom() noexcept { return m_zoom.x; }
 
