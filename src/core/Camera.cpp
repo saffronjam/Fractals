@@ -72,6 +72,7 @@ void Camera::Update()
     if (Keyboard::IsPressed(sf::Keyboard::R))
     {
         ResetTransformation();
+        Zoom(200.0f);
     }
 }
 

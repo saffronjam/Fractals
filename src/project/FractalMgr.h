@@ -16,6 +16,7 @@ public:
     void Draw();
 
     void SetFractal(const std::string &fractal);
+    void SetIterationCount(size_t iterations);
 
 private:
     std::map<std::string, FractalSet *> m_fractalSets;

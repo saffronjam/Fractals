@@ -20,9 +20,11 @@ public:
     void Draw();
 
     virtual void Start(const std::pair<sf::Vector2f, sf::Vector2f> &viewport) = 0;
+    void ReconstructImage();
+
     const std::string &GetName() const noexcept { return m_name; }
 
-    void SetComputeIteration() noexcept;
+    void SetComputeIteration(size_t iterations) noexcept;
 
 protected:
     std::string m_name;
@@ -31,4 +33,8 @@ protected:
 
 private:
     sf::VertexArray m_vertexArray;
+
+    std::array<double, 500> m_rSinLookup;
+    std::array<double, 500> m_gSinLookup;
+    std::array<double, 500> m_bSinLookup;
 };

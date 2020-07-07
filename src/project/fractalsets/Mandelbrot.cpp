@@ -39,8 +39,6 @@ void Mandelbrot::Start(const std::pair<sf::Vector2f, sf::Vector2f> &viewport)
     }
 }
 
-#include <complex>
-
 void Mandelbrot::Worker::Compute()
 {
     while (alive)
@@ -117,29 +115,6 @@ void Mandelbrot::Worker::Compute()
             y_pos += yScale;
             y_offset += row_size;
         }
-
-        // double xScale = (fractalBR.x - fractalTL.x) / (imageBR.x - imageTL.x);
-        // double yScale = (fractalBR.y - fractalTL.y) / (imageBR.y - imageTL.y);
-
-        // for (int y = imageTL.y; y < imageBR.y; y++)
-        // {
-        //     for (int x = imageTL.x; x < imageBR.x; x++)
-        //     {
-        //         std::complex<double> c((x - imageTL.x) * xScale + fractalTL.x, (y - imageTL.y) * yScale + fractalTL.y);
-        //         std::complex<double> z(0.0, 0.0);
-
-        //         int n = 0;
-        //         while (abs(z) < 2.0 && n < iterations)
-        //         {
-        //             z = (z * z) + c;
-        //             n++;
-        //         }
-
-        //         // printf(" %d ", n);
-
-        //         fractalArray[y * Window::GetWidth() + x] = n;
-        //     }
-        // }
 
         m_nWorkerComplete++;
     }
