@@ -11,6 +11,8 @@ public:
 
     void Start(const std::pair<sf::Vector2f, sf::Vector2f> &viewport) override;
 
+    sf::Vector2f TranslatePoint(const sf::Vector2f &point, int iterations = 1) override;
+
 private:
     std::vector<Worker> m_workers;
     static std::atomic<size_t> m_nWorkerComplete;

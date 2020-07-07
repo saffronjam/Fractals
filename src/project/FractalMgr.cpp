@@ -1,7 +1,8 @@
 #include "FractalMgr.h"
 
 FractalMgr::FractalMgr()
-    : m_lastViewport(vl::Null<>(), vl::Null<>())
+    : m_lastViewport(vl::Null<>(), vl::Null<>()),
+      m_iterations(64)
 {
     m_fractalSets.emplace(std::make_pair("Mandelbrot", new Mandelbrot()));
 
@@ -30,6 +31,20 @@ void FractalMgr::Update()
 void FractalMgr::Draw()
 {
     m_fractalSets.at(m_activeFractalSet)->Draw();
+
+    if (Mouse::IsDown(sf::Mouse::Button::Left) && Mouse::GetPos().x < Window::GetWidth() - 200)
+    {
+        sf::Vector2f start = Camera::ScreenToWorld(Mouse::GetPos());
+        sf::Vector2f to = start;
+
+        for (int i = 1; i < m_iterations; i++)
+        {
+            sf::Vector2f from = m_fractalSets[m_activeFractalSet]->TranslatePoint(start, i);
+            Camera::DrawLine(from, to, sf::Color(200, 200, 200, 60));
+            to = from;
+            Camera::DrawPoint(to, sf::Color(255, 255, 255, 150));
+        }
+    }
 }
 
 void FractalMgr::SetFractal(const std::string &fractal)
@@ -44,5 +59,7 @@ void FractalMgr::SetIterationCount(size_t iterations)
     {
         fractalSet->SetComputeIteration(iterations);
         fractalSet->Start(m_lastViewport);
+        fractalSet->ReconstructImage();
     }
+    m_iterations = iterations;
 }

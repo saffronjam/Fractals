@@ -4,6 +4,7 @@
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
+#include <complex>
 
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Sprite.hpp>
@@ -20,6 +21,7 @@ public:
     void Draw();
 
     virtual void Start(const std::pair<sf::Vector2f, sf::Vector2f> &viewport) = 0;
+    virtual sf::Vector2f TranslatePoint(const sf::Vector2f &point, int iterations = 1) = 0;
     void ReconstructImage();
 
     const std::string &GetName() const noexcept { return m_name; }

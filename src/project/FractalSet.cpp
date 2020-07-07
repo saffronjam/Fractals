@@ -14,9 +14,9 @@ FractalSet::FractalSet(const std::string &name)
     float a = 0.1f;
     for (int i = 0; i < 500; i++)
     {
-        m_rSinLookup[i] = std::sin(static_cast<float>(i) * a);
-        m_gSinLookup[i] = std::sin(static_cast<float>(i) * a + 2.094f);
-        m_bSinLookup[i] = std::sin(static_cast<float>(i) * a + 4.188f);
+        m_rSinLookup[i] = std::sin(static_cast<float>(i) * a - 1.0f);
+        m_gSinLookup[i] = std::sin(static_cast<float>(i) * a + 3.188f);
+        m_bSinLookup[i] = std::sin(static_cast<float>(i) * a + 1.094f);
     }
 }
 
@@ -27,7 +27,6 @@ FractalSet::~FractalSet()
 
 void FractalSet::Draw()
 {
-    ReconstructImage();
     Window::Draw(m_vertexArray);
 }
 
@@ -39,9 +38,9 @@ void FractalSet::ReconstructImage()
         {
             int i = m_fractalArray[y * Window::GetWidth() + x];
             float a = 0.1f;
-            sf::Uint8 r = static_cast<sf::Uint8>(255.0f * (0.5f * m_rSinLookup[i] + 0.5f));
-            sf::Uint8 g = static_cast<sf::Uint8>(255.0f * (0.5f * m_gSinLookup[i] + 0.5f));
-            sf::Uint8 b = static_cast<sf::Uint8>(255.0f * (0.5f * m_bSinLookup[i] + 0.5f));
+            sf::Uint8 r = static_cast<sf::Uint8>(30.0f * (0.5f * m_rSinLookup[i] + 0.5f));
+            sf::Uint8 g = static_cast<sf::Uint8>(30.0f * (0.5f * m_gSinLookup[i] + 0.5f));
+            sf::Uint8 b = static_cast<sf::Uint8>(30.0f * (0.5f * m_bSinLookup[i] + 0.5f));
             m_vertexArray[y * Window::GetWidth() + x].color = {r, g, b};
         }
     }
@@ -50,4 +49,5 @@ void FractalSet::ReconstructImage()
 void FractalSet::SetComputeIteration(size_t iterations) noexcept
 {
     m_computeIterations = iterations;
+    ReconstructImage();
 }

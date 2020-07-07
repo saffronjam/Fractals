@@ -23,4 +23,7 @@ private:
     std::string m_activeFractalSet;
 
     std::pair<sf::Vector2f, sf::Vector2f> m_lastViewport;
+
+    // Cached
+    size_t m_iterations;
 };

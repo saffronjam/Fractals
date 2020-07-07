@@ -39,6 +39,17 @@ void Mandelbrot::Start(const std::pair<sf::Vector2f, sf::Vector2f> &viewport)
     }
 }
 
+sf::Vector2f Mandelbrot::TranslatePoint(const sf::Vector2f &point, int iterations)
+{
+    std::complex<float> c(point.x, point.y);
+    std::complex<float> z(0.0f, 0.0f);
+
+    for (int n = 0; n < iterations && abs(z) < 2.0; n++)
+        z = (z * z) + c;
+
+    return sf::Vector2f(z.real(), z.imag());
+}
+
 void Mandelbrot::Worker::Compute()
 {
     while (alive)
