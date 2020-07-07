@@ -1,9 +1,6 @@
 #include "Mandelbrot.h"
-#include <condition_variable>
-#include <atomic>
-#include <complex>
-#include <cstdlib>
-#include <immintrin.h>
+
+std::atomic<size_t> Mandelbrot::m_nWorkerComplete = 0;
 
 Mandelbrot::Mandelbrot()
     : FractalSet("Mandelbrot"),
@@ -58,10 +55,10 @@ void Mandelbrot::Worker::Compute()
 
         int x, y;
 
-        SIMDd _a, _b, _two, _four, _mask1;
-        SIMDd _zr, _zi, _zr2, _zi2, _cr, _ci;
-        SIMDd _x_pos_offsets, _x_pos, _x_scale, _x_jump;
-        SIMDi _one, _c, _n, _iterations, _mask2;
+        SIMD_Double _a, _b, _two, _four, _mask1;
+        SIMD_Double _zr, _zi, _zr2, _zi2, _cr, _ci;
+        SIMD_Double _x_pos_offsets, _x_pos, _x_scale, _x_jump;
+        SIMD_Integer _one, _c, _n, _iterations, _mask2;
 
         _one = _mm256_set1_epi64x(1);
         _two = _mm256_set1_pd(2.0);
@@ -106,10 +103,10 @@ void Mandelbrot::Worker::Compute()
                 if (_mm256_movemask_pd(_mm256_castsi256_pd(_mask2)) > 0)
                     goto repeat;
 
-                (*vertexArray)[y_offset + x + 0] = static_cast<int>(_n.m256i_i64[3]);
-                (*vertexArray)[y_offset + x + 1] = static_cast<int>(_n.m256i_i64[2]);
-                (*vertexArray)[y_offset + x + 2] = static_cast<int>(_n.m256i_i64[1]);
-                (*vertexArray)[y_offset + x + 3] = static_cast<int>(_n.m256i_i64[0]);
+                (*vertexArray)[y_offset + x + 0].color.r = static_cast<int>(_n[3]);
+                (*vertexArray)[y_offset + x + 1].color.g = static_cast<int>(_n[2]);
+                (*vertexArray)[y_offset + x + 2].color.b = static_cast<int>(_n[1]);
+                (*vertexArray)[y_offset + x + 3].color.a = static_cast<int>(_n[0]);
                 _x_pos = _mm256_add_pd(_x_pos, _x_jump);
             }
 

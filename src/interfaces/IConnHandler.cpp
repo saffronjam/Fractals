@@ -152,6 +152,7 @@ std::optional<Connection *> IConnHandler::GetConnectionByIndex(size_t index)
         std::advance(resultIter, index);
         return &resultIter->second.first;
     }
+    return std::nullopt;
 }
 
 std::optional<Connection *> IConnHandler::GetConnectionByUID(NetUID uid)
