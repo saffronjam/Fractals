@@ -20,8 +20,7 @@ void ClientMainScreen::Destroy()
 
 void ClientMainScreen::OnEntry()
 {
-    LightningMgr::SetAmbientLight(sf::Color(255, 255, 255));
-    Camera::SetZoom(200.0f);
+    Camera::Zoom(200.0f);
 }
 
 void ClientMainScreen::OnExit()

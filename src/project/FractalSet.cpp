@@ -29,7 +29,7 @@ void FractalSet::Draw()
             sf::Uint8 r = static_cast<sf::Uint8>(255.0f * (0.5f * std::sin(a * n) + 0.5f));
             sf::Uint8 g = static_cast<sf::Uint8>(255.0f * (0.5f * std::sin(a * n + 2.094f) + 0.5f));
             sf::Uint8 b = static_cast<sf::Uint8>(255.0f * (0.5f * std::sin(a * n + 4.188f) + 0.5f));
-            m_vertexArray[i].color = sf::Color(r, g, b);
+            m_vertexArray[y * Window::GetWidth() + x].color = {r, g, b};
         }
     }
     Window::Draw(m_vertexArray);

@@ -27,15 +27,12 @@ void IApp::Run()
     {
         FPSLimiter::Start();
         OnPreUpdate();
-        PacketMgr::HandleAllPackets();
-        PhysicsMgr::Step();
         Keyboard::Update();
         Mouse::Update();
         EventMgr::PollAll();
         GuiMgr::Update();
         Camera::Update();
         Window::Clear();
-        LightningMgr::ClearOccluders();
         try
         {
             Update();
@@ -43,9 +40,6 @@ void IApp::Run()
             Draw();
         }
         LogOnly;
-        LightningMgr::DisplayOccluders();
-        LightningMgr::Render();
-        LightningMgr::Draw();
         GuiMgr::Draw();
         Window::Present();
         Clock::Mark();

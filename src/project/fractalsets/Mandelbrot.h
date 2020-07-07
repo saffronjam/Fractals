@@ -19,11 +19,13 @@ private:
     struct Worker
     {
         int *fractalArray;
+        size_t nWorkers = 0;
 
         int screenWidth = 0;
-        sf::Vector2i fractalImageSize = {0, 0};
-        sf::Vector2i fractalTL = {0, 0};
-        sf::Vector2i fractalBR = {0, 0};
+        sf::Vector2<double> imageTL = {0.0f, 0.0f};
+        sf::Vector2<double> imageBR = {0.0f, 0.0f};
+        sf::Vector2<double> fractalTL = {0.0f, 0.0f};
+        sf::Vector2<double> fractalBR = {0.0f, 0.0f};
 
         size_t iterations = 0;
         bool alive = true;
