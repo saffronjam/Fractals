@@ -41,19 +41,19 @@ void Julia::JuliaWorker::Compute()
         _x_pos_offsets = SIMD_Set(0.0, 1.0, 2.0, 3.0);
         _x_pos_offsets = SIMD_Mul(_x_pos_offsets, _x_scale);
 
+        _ci = SIMD_SetOne(-0.3842);
+        _cr = SIMD_SetOne(-0.70176);
+
         for (y = imageTL.y; y < imageBR.y; y++)
         {
             // Reset x_position
             _a = SIMD_SetOne(fractalTL.x);
             _x_pos = SIMD_Add(_a, _x_pos_offsets);
 
-            _ci = SIMD_SetOne(y_pos);
-
             for (x = imageTL.x; x < imageBR.x; x += 4)
             {
-                _cr = _x_pos;
-                _zr = SIMD_SetZero();
-                _zi = SIMD_SetZero();
+                _zr = _x_pos;
+                _zi = SIMD_SetOne(y_pos);
                 _n = SIMD_SetZero256i();
 
             repeat:
@@ -62,7 +62,8 @@ void Julia::JuliaWorker::Compute()
                 _a = SIMD_Sub(_zr2, _zi2);
                 _a = SIMD_Add(_a, _cr);
                 _b = SIMD_Mul(_zr, _zi);
-                _b = SIMD_MulAdd(_b, _two, _ci);
+                _b = SIMD_Mul(_b, _two);
+                _b = SIMD_Add(_b, _ci);
                 _zr = _a;
                 _zi = _b;
                 _a = SIMD_Add(_zr2, _zi2);
@@ -71,7 +72,7 @@ void Julia::JuliaWorker::Compute()
                 _mask2 = SIMD_Andi(_mask2, SIMD_CastToInt(_mask1));
                 _c = SIMD_Andi(_one, _mask2); // Zero out ones where n < iterations
                 _n = SIMD_Addi(_n, _c);       // n++ Increase all n
-                if (SIMD_MoveMask(SIMD_CastToFloat(_mask2)) > 0)
+                if (SIMD_SignMask(SIMD_CastToFloat(_mask2)) > 0)
                     goto repeat;
 
                 fractalArray[y_offset + x + 0] = static_cast<int>(_n[3]);

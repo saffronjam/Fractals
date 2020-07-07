@@ -54,7 +54,7 @@ void ClientMainScreen::OnEntry()
     auto comboBoxFractalChoice = sfg::ComboBox::Create();
     for (auto &[name, fractalSet] : m_fractalMgr.GetFractalSets())
         comboBoxFractalChoice->AppendItem(name);
-    comboBoxFractalChoice->SelectItem(0);
+    comboBoxFractalChoice->SelectItem(1);
 
     comboBoxFractalChoice->GetSignal(sfg::ComboBox::OnSelect).Connect([this, comboBoxFractalChoice] {
         const auto selectedItem = comboBoxFractalChoice->GetSelectedItem();

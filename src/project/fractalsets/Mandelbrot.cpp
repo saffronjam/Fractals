@@ -62,7 +62,8 @@ void Mandelbrot::MandelbrotWorker::Compute()
                 _a = SIMD_Sub(_zr2, _zi2);
                 _a = SIMD_Add(_a, _cr);
                 _b = SIMD_Mul(_zr, _zi);
-                _b = SIMD_MulAdd(_b, _two, _ci);
+                _b = SIMD_Mul(_b, _two);
+                _b = SIMD_Add(_b, _ci);
                 _zr = _a;
                 _zi = _b;
                 _a = SIMD_Add(_zr2, _zi2);
@@ -71,7 +72,7 @@ void Mandelbrot::MandelbrotWorker::Compute()
                 _mask2 = SIMD_Andi(_mask2, SIMD_CastToInt(_mask1));
                 _c = SIMD_Andi(_one, _mask2); // Zero out ones where n < iterations
                 _n = SIMD_Addi(_n, _c);       // n++ Increase all n
-                if (SIMD_MoveMask(SIMD_CastToFloat(_mask2)) > 0)
+                if (SIMD_SignMask(SIMD_CastToFloat(_mask2)) > 0)
                     goto repeat;
 
                 fractalArray[y_offset + x + 0] = static_cast<int>(_n[3]);

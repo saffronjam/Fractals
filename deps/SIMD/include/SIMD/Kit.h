@@ -123,7 +123,7 @@ typedef __m256d SIMD_Double;  //for doubles
 #define SIMD_LessThanOrEq(x, y) _mm256_cmp_pd(x, y, _CMP_LE_OQ)
 #define SIMD_GreaterThanOrEq(x, y) _mm256_cmp_pd(x, y, _CMP_GE_OQ)
 #define SIMD_NotEqual(x, y) _mm256_cmp_pd(x, y, _CMP_NEQ_OQ)
-#define SIMD_MoveMask(x) _mm256_movemask_pd(x)
+#define SIMD_SignMask(x) _mm256_movemask_pd(x)
 #define SIMD_Floor(x) _mm256_floor_pd(x)
 #define SIMD_Max(x, y) _mm256_max_pd(x, y)
 #define SIMD_Maxi(x, y) _mm256_max_epi64(x, y)
