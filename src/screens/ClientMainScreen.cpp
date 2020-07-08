@@ -23,6 +23,8 @@ void ClientMainScreen::OnEntry()
     Camera::Zoom(200.0f);
 
     // -------------- ALL LABELS ------------------
+    auto labelMandelbrotControls = sfg::Label::Create("Mandelbrot Controls");
+    auto labelJuliaControls = sfg::Label::Create("Julia Controls");
 
     // --------------  NUMBER OF ITERATIONS CONTROLLER ------------------
     auto labelIterNum = sfg::Label::Create();
@@ -50,7 +52,14 @@ void ClientMainScreen::OnEntry()
     boxIterNum->Pack(scaleIterNum, false, false);
     boxIterNum->SetRequisition(sf::Vector2f(150.0f, 0.0f));
 
-    // --------------  NUMBER OF ITERATIONS CONTROLLER ------------------
+    // -------------- MANDELBROT DRAW OPTIONS -------------
+    auto checkButtonDrawComplexLines = sfg::CheckButton::Create("Complex lines");
+
+    checkButtonDrawComplexLines->GetSignal(sfg::CheckButton::OnToggle).Connect([this, checkButtonDrawComplexLines] {
+        m_fractalMgr.SetDrawComplexLines(checkButtonDrawComplexLines->IsActive());
+    });
+
+    // -------------- JULIA COMPLEX C ADJUSTMENTS  -----------------
     auto labelJuliaC = sfg::Label::Create();
     auto scaleJuliaCr = sfg::Scale::Create(sfg::Scale::Orientation::HORIZONTAL);
     auto scaleJuliaCi = sfg::Scale::Create(sfg::Scale::Orientation::HORIZONTAL);
@@ -125,11 +134,12 @@ void ClientMainScreen::OnEntry()
     radioButtonAnimate->SetState(sfg::ComboBox::State::INSENSITIVE);
     radioButtonFollowCursor->SetState(sfg::ComboBox::State::INSENSITIVE);
 
-    comboBoxFractalChoice->GetSignal(sfg::ComboBox::OnSelect).Connect([this, comboBoxFractalChoice, scaleJuliaCr, scaleJuliaCi, radioButtonNone, radioButtonAnimate, radioButtonFollowCursor] {
+    comboBoxFractalChoice->GetSignal(sfg::ComboBox::OnSelect).Connect([this, comboBoxFractalChoice, checkButtonDrawComplexLines, scaleJuliaCr, scaleJuliaCi, radioButtonNone, radioButtonAnimate, radioButtonFollowCursor] {
         const auto selectedItem = comboBoxFractalChoice->GetSelectedItem();
         m_fractalMgr.SetFractalSet(comboBoxFractalChoice->GetItem(selectedItem));
         if (comboBoxFractalChoice->GetItem(selectedItem) == "Mandelbrot")
         {
+            checkButtonDrawComplexLines->SetState(sfg::ComboBox::State::NORMAL);
             scaleJuliaCr->SetState(sfg::ComboBox::State::INSENSITIVE);
             scaleJuliaCi->SetState(sfg::ComboBox::State::INSENSITIVE);
             radioButtonNone->SetState(sfg::ComboBox::State::INSENSITIVE);
@@ -138,6 +148,7 @@ void ClientMainScreen::OnEntry()
         }
         else
         {
+            checkButtonDrawComplexLines->SetState(sfg::ComboBox::State::INSENSITIVE);
             scaleJuliaCr->SetState(sfg::ComboBox::State::NORMAL);
             scaleJuliaCi->SetState(sfg::ComboBox::State::NORMAL);
             radioButtonNone->SetState(sfg::ComboBox::State::NORMAL);
@@ -149,13 +160,21 @@ void ClientMainScreen::OnEntry()
     comboBoxFractalChoice->SelectItem(1);
 
     // --------------- SUB BOXES ----------------------
+    auto boxMandelbrotControls = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 5.0f);
+    boxMandelbrotControls->Pack(labelMandelbrotControls);
+    boxMandelbrotControls->Pack(checkButtonDrawComplexLines);
+
+    auto boxJuliaControls = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 5.0f);
+    boxJuliaControls->Pack(labelJuliaControls);
+    boxJuliaControls->Pack(boxJuliaC);
+    boxJuliaControls->Pack(boxJuliaAnimation);
 
     // -------------- ADD TO MAIN BOX ------------------
     auto mainBox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 15.0f);
     mainBox->Pack(boxIterNum, false);
     mainBox->Pack(comboBoxFractalChoice, false);
-    mainBox->Pack(boxJuliaC, false);
-    mainBox->Pack(boxJuliaAnimation, false);
+    mainBox->Pack(boxMandelbrotControls, false);
+    mainBox->Pack(boxJuliaControls, false);
 
     // -------------- ADD TO MAIN WINDOW ------------------
     auto window = sfg::Window::Create(sfg::Window::Style::BACKGROUND);

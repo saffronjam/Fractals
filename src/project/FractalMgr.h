@@ -32,6 +32,7 @@ public:
     void SetFractalSet(const std::string &fractal);
     void SetIterationCount(size_t iterations);
     void SetJuliaC(const std::complex<double> c);
+    void SetDrawComplexLines(bool onoff) noexcept { m_drawComplexLines = onoff; }
 
     void SetJuliaSetState(JuliaState state) noexcept { m_juliaState = state; }
 
@@ -43,6 +44,8 @@ private:
     std::string m_activeFractalSet;
 
     std::pair<sf::Vector2f, sf::Vector2f> m_lastViewport;
+
+    bool m_drawComplexLines;
 
     JuliaState m_juliaState;
     float m_animationTimer;
