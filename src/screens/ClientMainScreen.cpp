@@ -36,12 +36,12 @@ void ClientMainScreen::OnEntry()
 
     adjustmentIterNum->GetSignal(sfg::Adjustment::OnChange).Connect([adjustmentIterNum, labelIterNum, this] {
         std::ostringstream oss;
-        oss << std::fixed << std::setprecision(1) << "Iterations: " << adjustmentIterNum->GetValue() << " ";
+        oss << std::fixed << std::setprecision(1) << "Max Iterations: " << adjustmentIterNum->GetValue() << " ";
         labelIterNum->SetText(oss.str());
         m_fractalMgr.SetIterationCount(adjustmentIterNum->GetValue());
     });
 
-    adjustmentIterNum->SetValue(100.0f);
+    adjustmentIterNum->SetValue(80.0f);
 
     scaleIterNum->SetRequisition(sf::Vector2f(80.f, 20.f));
 
@@ -55,40 +55,40 @@ void ClientMainScreen::OnEntry()
     auto scaleJuliaCr = sfg::Scale::Create(sfg::Scale::Orientation::HORIZONTAL);
     auto scaleJuliaCi = sfg::Scale::Create(sfg::Scale::Orientation::HORIZONTAL);
 
-    auto adjustmentJuliaCr = scaleJuliaCr->GetAdjustment();
-    adjustmentJuliaCr->SetLower(0.0f);
-    adjustmentJuliaCr->SetUpper(5.0f);
-    adjustmentJuliaCr->SetMinorStep(0.05f);
-    adjustmentJuliaCr->SetMajorStep(1.0f);
+    m_adjustmentJuliaCr = scaleJuliaCr->GetAdjustment();
+    m_adjustmentJuliaCr->SetLower(0.0f);
+    m_adjustmentJuliaCr->SetUpper(5.0f);
+    m_adjustmentJuliaCr->SetMinorStep(0.05f);
+    m_adjustmentJuliaCr->SetMajorStep(1.0f);
 
-    auto adjustmentJuliaCi = scaleJuliaCi->GetAdjustment();
-    adjustmentJuliaCi->SetLower(0.0f);
-    adjustmentJuliaCi->SetUpper(5.0f);
-    adjustmentJuliaCi->SetMinorStep(0.05f);
-    adjustmentJuliaCi->SetMajorStep(1.0f);
+    m_adjustmentJuliaCi = scaleJuliaCi->GetAdjustment();
+    m_adjustmentJuliaCi->SetLower(0.0f);
+    m_adjustmentJuliaCi->SetUpper(5.0f);
+    m_adjustmentJuliaCi->SetMinorStep(0.05f);
+    m_adjustmentJuliaCi->SetMajorStep(1.0f);
 
-    adjustmentJuliaCr->GetSignal(sfg::Adjustment::OnChange).Connect([this, labelJuliaC, adjustmentJuliaCr, adjustmentJuliaCi] {
-        double real = adjustmentJuliaCr->GetValue() - 2.5;
-        double imag = adjustmentJuliaCi->GetValue() - 2.5;
+    m_adjustmentJuliaCr->GetSignal(sfg::Adjustment::OnChange).Connect([this, labelJuliaC] {
+        double real = m_adjustmentJuliaCr->GetValue() - 2.5;
+        double imag = m_adjustmentJuliaCi->GetValue() - 2.5;
         char sign = imag < 0.0 ? '-' : '+';
         std::ostringstream oss;
-        oss << std::fixed << std::setprecision(2) << real << " " << sign << " " << imag << "i";
+        oss << std::fixed << std::setprecision(2) << real << " " << sign << " " << abs(imag) << "i";
         labelJuliaC->SetText(oss.str());
         m_fractalMgr.SetJuliaC(std::complex<double>(real, imag));
     });
 
-    adjustmentJuliaCi->GetSignal(sfg::Adjustment::OnChange).Connect([this, labelJuliaC, adjustmentJuliaCr, adjustmentJuliaCi] {
-        double real = adjustmentJuliaCr->GetValue() - 2.5;
-        double imag = adjustmentJuliaCi->GetValue() - 2.5;
+    m_adjustmentJuliaCi->GetSignal(sfg::Adjustment::OnChange).Connect([this, labelJuliaC] {
+        double real = m_adjustmentJuliaCr->GetValue() - 2.5;
+        double imag = m_adjustmentJuliaCi->GetValue() - 2.5;
         char sign = imag < 0.0 ? '-' : '+';
         std::ostringstream oss;
-        oss << std::fixed << std::setprecision(2) << real << " " << sign << " " << imag << "i";
+        oss << std::fixed << std::setprecision(2) << real << " " << sign << " " << abs(imag) << "i";
         labelJuliaC->SetText(oss.str());
         m_fractalMgr.SetJuliaC(std::complex<double>(real, imag));
     });
 
-    adjustmentJuliaCr->SetValue(2.5f);
-    adjustmentJuliaCi->SetValue(2.5f);
+    m_adjustmentJuliaCr->SetValue(2.5f);
+    m_adjustmentJuliaCi->SetValue(2.5f);
 
     scaleJuliaCr->SetRequisition(sf::Vector2f(80.f, 20.f));
     scaleJuliaCi->SetRequisition(sf::Vector2f(80.f, 20.f));
@@ -98,16 +98,55 @@ void ClientMainScreen::OnEntry()
     boxJuliaC->Pack(scaleJuliaCr, false, false);
     boxJuliaC->Pack(scaleJuliaCi, false, false);
 
+    // -------------- JULIA ANIMATION RADIOBUTTONS -----------------
+    auto radioButtonNone = sfg::RadioButton::Create("None");
+    auto radioButtonAnimate = sfg::RadioButton::Create("Animate", radioButtonNone->GetGroup());
+    auto radioButtonFollowCursor = sfg::RadioButton::Create("Follow Cursor", radioButtonNone->GetGroup());
+
+    radioButtonNone->GetSignal(sfg::ToggleButton::OnToggle).Connect([this] { m_fractalMgr.SetJuliaSetState(FractalMgr::JuliaState::None); });
+    radioButtonAnimate->GetSignal(sfg::ToggleButton::OnToggle).Connect([this] { m_fractalMgr.SetJuliaSetState(FractalMgr::JuliaState::Animate); });
+    radioButtonFollowCursor->GetSignal(sfg::ToggleButton::OnToggle).Connect([this] { m_fractalMgr.SetJuliaSetState(FractalMgr::JuliaState::FollowCursor); });
+
+    radioButtonNone->SetActive(true);
+
+    auto boxJuliaAnimation = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 3.0f);
+    boxJuliaAnimation->Pack(radioButtonNone);
+    boxJuliaAnimation->Pack(radioButtonAnimate);
+    boxJuliaAnimation->Pack(radioButtonFollowCursor);
+
     // -------------- FRACTAL SET CHOICE --------------------
     auto comboBoxFractalChoice = sfg::ComboBox::Create();
     for (auto &[name, fractalSet] : m_fractalMgr.GetFractalSets())
         comboBoxFractalChoice->AppendItem(name);
-    comboBoxFractalChoice->SelectItem(1);
 
-    comboBoxFractalChoice->GetSignal(sfg::ComboBox::OnSelect).Connect([this, comboBoxFractalChoice] {
+    scaleJuliaCr->SetState(sfg::ComboBox::State::INSENSITIVE);
+    scaleJuliaCi->SetState(sfg::ComboBox::State::INSENSITIVE);
+    radioButtonNone->SetState(sfg::ComboBox::State::INSENSITIVE);
+    radioButtonAnimate->SetState(sfg::ComboBox::State::INSENSITIVE);
+    radioButtonFollowCursor->SetState(sfg::ComboBox::State::INSENSITIVE);
+
+    comboBoxFractalChoice->GetSignal(sfg::ComboBox::OnSelect).Connect([this, comboBoxFractalChoice, scaleJuliaCr, scaleJuliaCi, radioButtonNone, radioButtonAnimate, radioButtonFollowCursor] {
         const auto selectedItem = comboBoxFractalChoice->GetSelectedItem();
         m_fractalMgr.SetFractalSet(comboBoxFractalChoice->GetItem(selectedItem));
+        if (comboBoxFractalChoice->GetItem(selectedItem) == "Mandelbrot")
+        {
+            scaleJuliaCr->SetState(sfg::ComboBox::State::INSENSITIVE);
+            scaleJuliaCi->SetState(sfg::ComboBox::State::INSENSITIVE);
+            radioButtonNone->SetState(sfg::ComboBox::State::INSENSITIVE);
+            radioButtonAnimate->SetState(sfg::ComboBox::State::INSENSITIVE);
+            radioButtonFollowCursor->SetState(sfg::ComboBox::State::INSENSITIVE);
+        }
+        else
+        {
+            scaleJuliaCr->SetState(sfg::ComboBox::State::NORMAL);
+            scaleJuliaCi->SetState(sfg::ComboBox::State::NORMAL);
+            radioButtonNone->SetState(sfg::ComboBox::State::NORMAL);
+            radioButtonAnimate->SetState(sfg::ComboBox::State::NORMAL);
+            radioButtonFollowCursor->SetState(sfg::ComboBox::State::NORMAL);
+        }
     });
+
+    comboBoxFractalChoice->SelectItem(1);
 
     // --------------- SUB BOXES ----------------------
 
@@ -116,6 +155,7 @@ void ClientMainScreen::OnEntry()
     mainBox->Pack(boxIterNum, false);
     mainBox->Pack(comboBoxFractalChoice, false);
     mainBox->Pack(boxJuliaC, false);
+    mainBox->Pack(boxJuliaAnimation, false);
 
     // -------------- ADD TO MAIN WINDOW ------------------
     auto window = sfg::Window::Create(sfg::Window::Style::BACKGROUND);
@@ -132,11 +172,10 @@ void ClientMainScreen::OnExit()
 
 void ClientMainScreen::Update()
 {
-    m_fractalMgr.Update();
+    m_fractalMgr.Update(m_adjustmentJuliaCr, m_adjustmentJuliaCi);
 
     std::ostringstream oss;
     oss << "FPS: " << Clock::GetFPS() << " Frametime: " << Clock::Delta().asSeconds() << "s";
-
     Window::SetTitle(oss.str());
 }
 

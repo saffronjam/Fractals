@@ -10,6 +10,7 @@
 #include <SFGUI/ComboBox.hpp>
 #include <SFGUI/Desktop.hpp>
 #include <SFGUI/Label.hpp>
+#include <SFGUI/RadioButton.hpp>
 #include <SFGUI/Scale.hpp>
 #include <SFGUI/Scrollbar.hpp>
 #include <SFGUI/SFGUI.hpp>

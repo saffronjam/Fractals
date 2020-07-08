@@ -1,8 +1,11 @@
 #include "FractalMgr.h"
 
 FractalMgr::FractalMgr()
-    : m_lastViewport(vl::Null<>(), vl::Null<>()),
-      m_iterations(64)
+    : m_updatedThisFrame(false),
+      m_lastViewport(vl::Null<>(), vl::Null<>()),
+      m_iterations(64),
+      m_drawComplexLines(false),
+      m_animationTimer(0.0f)
 {
     m_fractalSets.emplace(std::make_pair("Mandelbrot", new Mandelbrot()));
     m_fractalSets.emplace(std::make_pair("Julia", new Julia()));
@@ -19,8 +22,9 @@ FractalMgr::~FractalMgr()
     }
 }
 
-void FractalMgr::Update()
+void FractalMgr::Update(sfg::Adjustment::Ptr cr, sfg::Adjustment::Ptr ci)
 {
+    m_updatedThisFrame = false;
     auto newViewPort = Camera::GetViewport();
     if (m_lastViewport != newViewPort)
     {
@@ -28,13 +32,48 @@ void FractalMgr::Update()
         m_fractalSets.at(m_activeFractalSet)->Start(m_lastViewport);
         m_fractalSets.at(m_activeFractalSet)->ReconstructImage();
     }
+
+    if (m_activeFractalSet == "Julia")
+    {
+        switch (m_juliaState)
+        {
+        case JuliaState::Animate:
+        {
+            double x = 0.7885 * std::cos(m_animationTimer);
+            double y = 0.7885 * std::sin(m_animationTimer);
+            SetJuliaC({x, y});
+            cr->SetValue(x + 2.5);
+            ci->SetValue(y + 2.5);
+            break;
+        }
+        case JuliaState::FollowCursor:
+        {
+            auto mousePos = Camera::ScreenToWorld(Mouse::GetPos());
+            SetJuliaC(std::complex<double>(mousePos.x, mousePos.y));
+            cr->SetValue(mousePos.x + 2.5);
+            ci->SetValue(mousePos.y + 2.5);
+            break;
+        }
+        case JuliaState::None:
+        {
+            break;
+        }
+        default:
+        {
+            break;
+        }
+        }
+        m_animationTimer += Clock::Delta().asSeconds() / 2.0f;
+        if (m_animationTimer > 2.0f * PI<>)
+            m_animationTimer = 0.0f;
+    }
 }
 
 void FractalMgr::Draw()
 {
     m_fractalSets.at(m_activeFractalSet)->Draw();
 
-    if (Mouse::IsDown(sf::Mouse::Button::Left) && Mouse::GetPos().x < Window::GetWidth() - 200)
+    if (m_activeFractalSet == "Mandelbrot" && m_drawComplexLines && Mouse::GetPos().x < Window::GetWidth() - 200)
     {
         sf::Vector2f start = Camera::ScreenToWorld(Mouse::GetPos());
         sf::Vector2f to = start;
@@ -58,25 +97,33 @@ void FractalMgr::SetFractalSet(const std::string &fractal)
 
 void FractalMgr::SetIterationCount(size_t iterations)
 {
-    for (auto &[name, fractalSet] : m_fractalSets)
+    if (!m_updatedThisFrame)
     {
-        fractalSet->SetComputeIteration(iterations);
-        fractalSet->Start(m_lastViewport);
-        fractalSet->ReconstructImage();
+        m_updatedThisFrame = true;
+        for (auto &[name, fractalSet] : m_fractalSets)
+        {
+            fractalSet->SetComputeIteration(iterations);
+            fractalSet->Start(m_lastViewport);
+            fractalSet->ReconstructImage();
+        }
+        m_iterations = iterations;
     }
-    m_iterations = iterations;
 }
 
 void FractalMgr::SetJuliaC(const std::complex<double> c)
 {
-    auto julia = dynamic_cast<Julia *>(m_fractalSets["Julia"]);
-    if (julia != nullptr)
+    if (!m_updatedThisFrame)
     {
-        julia->SetC(c);
-        if (m_activeFractalSet == "Julia")
+        m_updatedThisFrame = true;
+        auto julia = dynamic_cast<Julia *>(m_fractalSets["Julia"]);
+        if (julia != nullptr)
         {
-            m_fractalSets.at("Julia")->Start(m_lastViewport);
-            m_fractalSets.at("Julia")->ReconstructImage();
+            julia->SetC(c);
+            if (m_activeFractalSet == "Julia")
+            {
+                m_fractalSets.at("Julia")->Start(m_lastViewport);
+                m_fractalSets.at("Julia")->ReconstructImage();
+            }
         }
     }
 }

@@ -35,4 +35,7 @@ private:
     AppClient &m_parent;
 
     FractalMgr m_fractalMgr;
+
+    sfg::Adjustment::Ptr m_adjustmentJuliaCr;
+    sfg::Adjustment::Ptr m_adjustmentJuliaCi;
 };
