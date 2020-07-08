@@ -27,6 +27,10 @@ FractalSet::~FractalSet()
     delete[] m_fractalArray;
     for (auto &worker : m_workers)
     {
+        worker->alive = false;
+        worker->cvStart.notify_all();
+        if (worker->thread.joinable())
+            worker->thread.join();
         delete worker;
         worker = nullptr;
     }
