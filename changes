@@ -1,1 +1,3 @@
 Add RadioButton include in IApp.h
+Add HSVColor class
+Add HSVColor lib function to Lib.h and Lib.cpp

@@ -36,6 +36,11 @@ private:
 
     FractalMgr m_fractalMgr;
 
+    sfg::Window::Ptr m_guiWindow;
     sfg::Adjustment::Ptr m_adjustmentJuliaCr;
     sfg::Adjustment::Ptr m_adjustmentJuliaCi;
+    sfg::Label::Ptr m_labelFPS;
+    sfg::Label::Ptr m_labelFrametime;
+
+    float m_updatePerformanceLabelsTimer;
 };

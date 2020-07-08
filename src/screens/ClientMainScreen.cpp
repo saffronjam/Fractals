@@ -2,7 +2,8 @@
 #include "AppClient.h"
 
 ClientMainScreen::ClientMainScreen(AppClient &parent)
-    : m_parent(parent)
+    : m_parent(parent),
+      m_updatePerformanceLabelsTimer(0.0f)
 {
 }
 
@@ -21,12 +22,21 @@ void ClientMainScreen::Destroy()
 void ClientMainScreen::OnEntry()
 {
     Camera::Zoom(200.0f);
+    FPSLimiter::SetDesiredFPS(144.0f);
 
     // -------------- ALL LABELS ------------------
     auto labelMandelbrotControls = sfg::Label::Create("Mandelbrot Controls");
     auto labelJuliaControls = sfg::Label::Create("Julia Controls");
     auto labelPanHint = sfg::Label::Create("Hold down both mouse buttons to pan around");
     auto labelZoomHint = sfg::Label::Create("Use your mouse wheel to zoom");
+    m_labelFPS = sfg::Label::Create("");
+    m_labelFrametime = sfg::Label::Create("");
+
+    labelPanHint->SetRequisition(sf::Vector2f(180.0f, 0.0f));
+    labelZoomHint->SetRequisition(sf::Vector2f(180.0f, 0.0f));
+
+    labelPanHint->SetLineWrap(true);
+    labelZoomHint->SetLineWrap(true);
 
     // --------------  NUMBER OF ITERATIONS CONTROLLER ------------------
     auto labelIterNum = sfg::Label::Create();
@@ -171,22 +181,27 @@ void ClientMainScreen::OnEntry()
     boxJuliaControls->Pack(boxJuliaC);
     boxJuliaControls->Pack(boxJuliaAnimation);
 
+    auto boxPerformance = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 2.0f);
+    boxPerformance->Pack(m_labelFPS);
+    boxPerformance->Pack(m_labelFrametime);
+
     // -------------- ADD TO MAIN BOX ------------------
     auto mainBox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 15.0f);
     mainBox->Pack(boxIterNum, false);
     mainBox->Pack(comboBoxFractalChoice, false);
     mainBox->Pack(boxMandelbrotControls, false);
     mainBox->Pack(boxJuliaControls, false);
-    mainBox->Pack(labelPanHint, false, false);
-    mainBox->Pack(labelZoomHint, false, false);
+    mainBox->Pack(boxPerformance, false);
+    mainBox->Pack(labelPanHint, false);
+    mainBox->Pack(labelZoomHint, false);
 
     // -------------- ADD TO MAIN WINDOW ------------------
-    auto window = sfg::Window::Create(sfg::Window::Style::BACKGROUND);
-    window->SetPosition(sf::Vector2f(Window::GetWidth() - 200.0f, 0.0f));
-    window->SetRequisition(sf::Vector2f(200.0f, Window::GetHeight()));
-    window->Add(mainBox);
+    m_guiWindow = sfg::Window::Create(sfg::Window::Style::BACKGROUND);
+    m_guiWindow->SetPosition(sf::Vector2f(Window::GetWidth() - 200.0f, 0.0f));
+    m_guiWindow->SetRequisition(sf::Vector2f(200.0f, Window::GetHeight()));
+    m_guiWindow->Add(mainBox);
 
-    GuiMgr::Add(window);
+    GuiMgr::Add(m_guiWindow);
 }
 
 void ClientMainScreen::OnExit()
@@ -197,9 +212,19 @@ void ClientMainScreen::Update()
 {
     m_fractalMgr.Update(m_adjustmentJuliaCr, m_adjustmentJuliaCi);
 
-    std::ostringstream oss;
-    oss << "FPS: " << Clock::GetFPS() << " Frametime: " << Clock::Delta().asSeconds() << "s";
-    Window::SetTitle(oss.str());
+    m_updatePerformanceLabelsTimer += Clock::Delta().asSeconds();
+    if (m_updatePerformanceLabelsTimer > 0.5f)
+    {
+        std::ostringstream oss;
+        oss << "FPS: " << std::fixed << std::setprecision(0) << Clock::GetFPS() << "   \t\n";
+        oss << "Frametime: " << std::fixed << std::setprecision(4) << Clock::Delta().asSeconds() << "s"
+            << "   \t\n";
+        m_labelFrametime->SetText(oss.str());
+        m_updatePerformanceLabelsTimer = 0.0f;
+    }
+
+    m_guiWindow->SetPosition(sf::Vector2f(Window::GetWidth() - 200.0f, 0.0f));
+    m_guiWindow->SetRequisition(sf::Vector2f(200.0f, Window::GetHeight()));
 }
 
 void ClientMainScreen::Draw()

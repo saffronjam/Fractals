@@ -11,6 +11,7 @@
 #include <SIMD/Kit.h>
 
 #include "Camera.h"
+#include "HSVColor.h"
 
 class FractalSet
 {

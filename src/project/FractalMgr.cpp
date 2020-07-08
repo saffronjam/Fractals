@@ -41,7 +41,7 @@ void FractalMgr::Update(sfg::Adjustment::Ptr cr, sfg::Adjustment::Ptr ci)
         {
             double x = 0.7885 * std::cos(m_animationTimer);
             double y = 0.7885 * std::sin(m_animationTimer);
-            SetJuliaC({x, y});
+            SetJuliaC(std::complex<double>(x, y));
             cr->SetValue(x + 2.5);
             ci->SetValue(y + 2.5);
             m_animationTimer += Clock::Delta().asSeconds() / 2.0f;
@@ -68,6 +68,17 @@ void FractalMgr::Update(sfg::Adjustment::Ptr cr, sfg::Adjustment::Ptr ci)
         }
     }
 
+    if (!m_updatedThisFrame && m_iterations != m_iterationsGoal)
+    {
+        m_iterations = m_iterationsGoal;
+        m_updatedThisFrame = true;
+        for (auto &[name, fractalSet] : m_fractalSets)
+        {
+            fractalSet->SetComputeIteration(m_iterations);
+            fractalSet->Start(m_lastViewport);
+            fractalSet->ReconstructImage();
+        }
+    }
     if (m_activeFractalSet == "Julia" && !m_updatedThisFrame && m_juliaC != m_juliaCGoal)
     {
         auto julia = dynamic_cast<Julia *>(m_fractalSets["Julia"]);
@@ -81,17 +92,6 @@ void FractalMgr::Update(sfg::Adjustment::Ptr cr, sfg::Adjustment::Ptr ci)
                 m_fractalSets.at("Julia")->Start(m_lastViewport);
                 m_fractalSets.at("Julia")->ReconstructImage();
             }
-        }
-    }
-    if (!m_updatedThisFrame && m_iterations != m_iterationsGoal)
-    {
-        m_iterations = m_iterationsGoal;
-        m_updatedThisFrame = true;
-        for (auto &[name, fractalSet] : m_fractalSets)
-        {
-            fractalSet->SetComputeIteration(m_iterations);
-            fractalSet->Start(m_lastViewport);
-            fractalSet->ReconstructImage();
         }
     }
 }

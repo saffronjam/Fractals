@@ -95,6 +95,11 @@ sf::Color Lib::HSVtoRGB(int hue, float saturation, float value)
     }
 }
 
+sf::Color Lib::HSVtoRGB(const HSVColor &hsvColor)
+{
+    return HSVtoRGB(hsvColor.GetHue(), hsvColor.GetSaturation(), hsvColor.GetValue());
+}
+
 HSVColor Lib::RGBtoHSV(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b)
 {
     auto _r = r / 255.0f;
@@ -139,46 +144,7 @@ HSVColor Lib::RGBtoHSV(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b)
     return HSVColor(hue, saturation, value);
 }
 
-HSVColor RGBtoHSV(const sf::Color &color)
+HSVColor Lib::RGBtoHSV(const sf::Color &color)
 {
-    auto _r = color.r / 255.0f;
-    auto _g = color.g / 255.0f;
-    auto _b = color.b / 255.0f;
-
-    auto cMax = std::max({_r, _g, _b});
-    auto cMin = std::min({_r, _g, _b});
-
-    auto cDelta = cMax - cMin;
-
-    int hue;
-    if (cDelta == 0.0f)
-    {
-        hue = 0;
-    }
-    else if (cMax == _r)
-    {
-        hue = 60 * (static_cast<int>((_g - _b) / cDelta) % 6);
-    }
-    else if (cMax == _g)
-    {
-        hue = 60 * (static_cast<int>((_b - _r) / cDelta) + 2);
-    }
-    else if (cMax == _b)
-    {
-        hue = 60 * (static_cast<int>((_r - _g) / cDelta) + 4);
-    }
-
-    float saturation;
-    if (cMax == 0.0f)
-    {
-        saturation = 0.0f;
-    }
-    else
-    {
-        saturation = cDelta / cMax;
-    }
-
-    auto value = cMax;
-
-    return HSVColor(hue, saturation, value);
+    return RGBtoHSV(color.r, color.g, color.b);
 }

@@ -65,6 +65,7 @@ public:
     /// @saturation: 0.0 - 1.0
     /// @value: 0.0 - 1.0
     static sf::Color HSVtoRGB(int hue, float saturation, float value);
+    static sf::Color HSVtoRGB(const class HSVColor &hsvColor);
 
     static class HSVColor RGBtoHSV(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b);
     static class HSVColor RGBtoHSV(const sf::Color &color);

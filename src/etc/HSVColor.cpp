@@ -1,5 +1,10 @@
 #include "HSVColor.h"
 
+HSVColor::HSVColor()
+    : HSVColor(0, 0.0f, 0.0f)
+{
+}
+
 HSVColor::HSVColor(int hue, float saturation, float value)
     : sf::Color(Lib::HSVtoRGB(hue, saturation, value)),
       m_hue(hue),
@@ -18,26 +23,26 @@ HSVColor::HSVColor(const sf::Color &color)
 }
 
 HSVColor::HSVColor(const HSVColor &hsvColor)
-    : HSVColor(hsvColo)
+    : HSVColor(hsvColor.m_hue, hsvColor.m_saturation, hsvColor.m_value)
 {
 }
 
-const sf::Color &HSVColor::GetRGBA()
+const sf::Color &HSVColor::GetRGBA() const
 {
     return *this;
 }
 
-int HSVColor::GetHue()
+int HSVColor::GetHue() const
 {
     return m_hue;
 }
 
-float HSVColor::GetSaturation()
+float HSVColor::GetSaturation() const
 {
     return m_saturation;
 }
 
-float HSVColor::GetValue()
+float HSVColor::GetValue() const
 {
     return m_value;
 }
@@ -45,14 +50,25 @@ float HSVColor::GetValue()
 void HSVColor::SetHue(int hue)
 {
     m_hue = hue;
+    GenerateRGB();
 }
 
 void HSVColor::SetSaturation(float saturation)
 {
     m_saturation = saturation;
+    GenerateRGB();
 }
 
 void HSVColor::SetValue(float value)
 {
     m_value = value;
+    GenerateRGB();
+}
+
+void HSVColor::GenerateRGB()
+{
+    auto color = Lib::HSVtoRGB(m_hue, m_saturation, m_value);
+    r = color.r;
+    g = color.g;
+    b = color.b;
 }
