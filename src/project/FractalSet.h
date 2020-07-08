@@ -47,9 +47,7 @@ private:
     sf::VertexArray m_vertexArray;
     int *m_fractalArray;
 
-    std::array<double, 500> m_rSinLookup;
-    std::array<double, 500> m_gSinLookup;
-    std::array<double, 500> m_bSinLookup;
+    sf::Image m_colorPalette;
 
 protected:
     struct Worker

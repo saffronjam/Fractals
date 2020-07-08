@@ -13,17 +13,11 @@ FractalSet::FractalSet(const std::string &name)
     m_simWidth = Window::GetWidth() - 200;
     m_simHeight = Window::GetHeight();
 
+    m_colorPalette.loadFromFile("res/fractalPal.png");
+
     for (size_t i = 0; i < m_vertexArray.getVertexCount(); i++)
     {
         m_vertexArray[i].position = sf::Vector2f(static_cast<float>(std::floor(i % m_simWidth)), static_cast<float>(std::floor(i / m_simWidth)));
-    }
-
-    float a = 0.1f;
-    for (int i = 0; i < 500; i++)
-    {
-        m_rSinLookup[i] = std::sin(static_cast<float>(i) * a - 1.0f);
-        m_gSinLookup[i] = std::sin(static_cast<float>(i) * a + 3.188f);
-        m_bSinLookup[i] = std::sin(static_cast<float>(i) * a + 1.094f);
     }
 }
 
@@ -71,26 +65,14 @@ void FractalSet::Start(const std::pair<sf::Vector2f, sf::Vector2f> &viewport)
 
 void FractalSet::ReconstructImage()
 {
+    auto colorPal = m_colorPalette.getPixelsPtr();
     for (int y = 0; y < m_simHeight; y++)
     {
         for (int x = 0; x < m_simWidth; x++)
         {
             int i = m_fractalArray[y * m_simWidth + x];
-            sf::Uint8 r, g, b;
-            if (i != m_computeIterations)
-            {
-                float a = 0.1f;
-                r = static_cast<sf::Uint8>(30.0f * (0.5f * m_rSinLookup[i] + 0.5f));
-                g = static_cast<sf::Uint8>(30.0f * (0.5f * m_gSinLookup[i] + 0.5f));
-                b = static_cast<sf::Uint8>(30.0f * (0.5f * m_bSinLookup[i] + 0.5f));
-            }
-            else
-            {
-                r = 0.0f;
-                g = 0.0f;
-                b = 0.0f;
-            }
-            m_vertexArray[y * m_simWidth + x].color = {r, g, b};
+            float offset = static_cast<float>(i) / static_cast<float>(m_computeIterations) * 256.0f;
+            memcpy(&m_vertexArray[y * m_simWidth + x].color, &colorPal[static_cast<int>(offset) * 4], sizeof(sf::Uint8) * 3);
         }
     }
 }
