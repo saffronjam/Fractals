@@ -27,7 +27,7 @@ public:
     void ReconstructImage();
     void AddWorker(Worker *worker);
 
-    virtual sf::Vector2f TranslatePoint(const sf::Vector2f &point, int iterations = 1);
+    virtual sf::Vector2f TranslatePoint(const sf::Vector2f &point, int iterations = 1) = 0;
 
     const std::string &GetName() const noexcept { return m_name; }
 

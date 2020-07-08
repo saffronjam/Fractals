@@ -90,17 +90,6 @@ void FractalSet::AddWorker(Worker *worker)
     m_workers.push_back(worker);
 }
 
-sf::Vector2f FractalSet::TranslatePoint(const sf::Vector2f &point, int iterations)
-{
-    std::complex<float> c(point.x, point.y);
-    std::complex<float> z(0.0f, 0.0f);
-
-    for (int n = 0; n < iterations && abs(z) < 2.0; n++)
-        z = (z * z) + c;
-
-    return sf::Vector2f(z.real(), z.imag());
-}
-
 void FractalSet::SetComputeIteration(size_t iterations) noexcept
 {
     m_computeIterations = iterations;

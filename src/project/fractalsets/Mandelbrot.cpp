@@ -9,6 +9,17 @@ Mandelbrot::Mandelbrot()
     }
 }
 
+sf::Vector2f Mandelbrot::TranslatePoint(const sf::Vector2f &point, int iterations)
+{
+    std::complex<double> c(point.x, point.y);
+    std::complex<double> z(0.0, 0.0);
+
+    for (int n = 0; n < iterations && abs(z) < 2.0; n++)
+        z = (z * z) + c;
+
+    return sf::Vector2f(z.real(), z.imag());
+}
+
 void Mandelbrot::MandelbrotWorker::Compute()
 {
     while (alive)
