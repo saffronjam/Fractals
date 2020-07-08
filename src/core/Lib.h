@@ -61,6 +61,14 @@ public:
     template <typename T>
     static std::vector<sf::Vector2<T>> WrapPoints(const std::vector<sf::Vector2<T>> &points);
 
+    /// @hue: 0-360°
+    /// @saturation: 0.0 - 1.0
+    /// @value: 0.0 - 1.0
+    static sf::Color HSVtoRGB(int hue, float saturation, float value);
+
+    static class HSVColor RGBtoHSV(sf::Uint8 r, sf::Uint8 g, sf::Uint8 b);
+    static class HSVColor RGBtoHSV(const sf::Color &color);
+
 private:
     template <typename T>
     static void ClearPointsRecursively(const std::pair<sf::Vector2<T>, sf::Vector2<T>> &line, const std::vector<sf::Vector2<T>> &points, std::vector<sf::Vector2<T>> &finalPoints);

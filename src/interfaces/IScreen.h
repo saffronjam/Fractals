@@ -29,6 +29,7 @@
 #include "PolygonCollider.h"
 #include "Random.h"
 #include "Voronoi.h"
+#include "HSVColor.h"
 
 #define SCREENINDEX_NO_SCREEN -1
 
