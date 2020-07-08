@@ -21,9 +21,10 @@ FractalMgr::~FractalMgr()
 
 void FractalMgr::Update()
 {
-    if (m_lastViewport != Camera::GetViewport())
+    auto newViewPort = Camera::GetViewport();
+    if (m_lastViewport != newViewPort)
     {
-        m_lastViewport = Camera::GetViewport();
+        m_lastViewport = newViewPort;
         m_fractalSets.at(m_activeFractalSet)->Start(m_lastViewport);
         m_fractalSets.at(m_activeFractalSet)->ReconstructImage();
     }
@@ -64,4 +65,18 @@ void FractalMgr::SetIterationCount(size_t iterations)
         fractalSet->ReconstructImage();
     }
     m_iterations = iterations;
+}
+
+void FractalMgr::SetJuliaC(const std::complex<double> c)
+{
+    auto julia = dynamic_cast<Julia *>(m_fractalSets["Julia"]);
+    if (julia != nullptr)
+    {
+        julia->SetC(c);
+        if (m_activeFractalSet == "Julia")
+        {
+            m_fractalSets.at("Julia")->Start(m_lastViewport);
+            m_fractalSets.at("Julia")->ReconstructImage();
+        }
+    }
 }

@@ -21,6 +21,11 @@ sf::Vector2f Julia::TranslatePoint(const sf::Vector2f &point, int iterations)
     return sf::Vector2f(z.real(), z.imag());
 }
 
+void Julia::SetC(const std::complex<double> &c)
+{
+    m_c = c;
+}
+
 void Julia::JuliaWorker::Compute()
 {
     while (alive)
@@ -34,7 +39,7 @@ void Julia::JuliaWorker::Compute()
         double y_pos = fractalTL.y;
 
         int y_offset = 0;
-        int row_size = screenWidth;
+        int row_size = m_simWidth;
 
         int x, y;
 

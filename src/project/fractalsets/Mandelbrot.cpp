@@ -33,7 +33,7 @@ void Mandelbrot::MandelbrotWorker::Compute()
         double y_pos = fractalTL.y;
 
         int y_offset = 0;
-        int row_size = screenWidth;
+        int row_size = m_simWidth;
 
         int x, y;
 

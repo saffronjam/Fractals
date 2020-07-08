@@ -50,6 +50,54 @@ void ClientMainScreen::OnEntry()
     boxIterNum->Pack(scaleIterNum, false, false);
     boxIterNum->SetRequisition(sf::Vector2f(150.0f, 0.0f));
 
+    // --------------  NUMBER OF ITERATIONS CONTROLLER ------------------
+    auto labelJuliaC = sfg::Label::Create();
+    auto scaleJuliaCr = sfg::Scale::Create(sfg::Scale::Orientation::HORIZONTAL);
+    auto scaleJuliaCi = sfg::Scale::Create(sfg::Scale::Orientation::HORIZONTAL);
+
+    auto adjustmentJuliaCr = scaleJuliaCr->GetAdjustment();
+    adjustmentJuliaCr->SetLower(0.0f);
+    adjustmentJuliaCr->SetUpper(5.0f);
+    adjustmentJuliaCr->SetMinorStep(0.05f);
+    adjustmentJuliaCr->SetMajorStep(1.0f);
+
+    auto adjustmentJuliaCi = scaleJuliaCi->GetAdjustment();
+    adjustmentJuliaCi->SetLower(0.0f);
+    adjustmentJuliaCi->SetUpper(5.0f);
+    adjustmentJuliaCi->SetMinorStep(0.05f);
+    adjustmentJuliaCi->SetMajorStep(1.0f);
+
+    adjustmentJuliaCr->GetSignal(sfg::Adjustment::OnChange).Connect([this, labelJuliaC, adjustmentJuliaCr, adjustmentJuliaCi] {
+        double real = adjustmentJuliaCr->GetValue() - 2.5;
+        double imag = adjustmentJuliaCi->GetValue() - 2.5;
+        char sign = imag < 0.0 ? '-' : '+';
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(2) << real << " " << sign << " " << imag << "i";
+        labelJuliaC->SetText(oss.str());
+        m_fractalMgr.SetJuliaC(std::complex<double>(real, imag));
+    });
+
+    adjustmentJuliaCi->GetSignal(sfg::Adjustment::OnChange).Connect([this, labelJuliaC, adjustmentJuliaCr, adjustmentJuliaCi] {
+        double real = adjustmentJuliaCr->GetValue() - 2.5;
+        double imag = adjustmentJuliaCi->GetValue() - 2.5;
+        char sign = imag < 0.0 ? '-' : '+';
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(2) << real << " " << sign << " " << imag << "i";
+        labelJuliaC->SetText(oss.str());
+        m_fractalMgr.SetJuliaC(std::complex<double>(real, imag));
+    });
+
+    adjustmentJuliaCr->SetValue(2.5f);
+    adjustmentJuliaCi->SetValue(2.5f);
+
+    scaleJuliaCr->SetRequisition(sf::Vector2f(80.f, 20.f));
+    scaleJuliaCi->SetRequisition(sf::Vector2f(80.f, 20.f));
+
+    auto boxJuliaC = sfg::Box::Create(sfg::Box::Orientation::VERTICAL);
+    boxJuliaC->Pack(labelJuliaC, false, false);
+    boxJuliaC->Pack(scaleJuliaCr, false, false);
+    boxJuliaC->Pack(scaleJuliaCi, false, false);
+
     // -------------- FRACTAL SET CHOICE --------------------
     auto comboBoxFractalChoice = sfg::ComboBox::Create();
     for (auto &[name, fractalSet] : m_fractalMgr.GetFractalSets())
@@ -67,6 +115,7 @@ void ClientMainScreen::OnEntry()
     auto mainBox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 15.0f);
     mainBox->Pack(boxIterNum, false);
     mainBox->Pack(comboBoxFractalChoice, false);
+    mainBox->Pack(boxJuliaC, false);
 
     // -------------- ADD TO MAIN WINDOW ------------------
     auto window = sfg::Window::Create(sfg::Window::Style::BACKGROUND);

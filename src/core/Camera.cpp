@@ -208,7 +208,7 @@ std::pair<sf::Vector2f, sf::Vector2f> Camera::GetViewport() noexcept
 {
     auto screenRect = Window::GetScreenRect();
     auto TL = sf::Vector2f(screenRect.left, screenRect.top);
-    auto BR = sf::Vector2f(screenRect.left + screenRect.width, screenRect.top + screenRect.height);
+    auto BR = sf::Vector2f(screenRect.left + screenRect.width - 200.0f, screenRect.top + screenRect.height);
 
     return std::make_pair(m_transform.getInverse().transformPoint(TL), m_transform.getInverse().transformPoint(BR));
 }

@@ -1,16 +1,21 @@
 #include "FractalSet.h"
 
 std::atomic<size_t> FractalSet::m_nWorkerComplete = 0;
+int FractalSet::m_simWidth(0);
+int FractalSet::m_simHeight(0);
 
 FractalSet::FractalSet(const std::string &name)
     : m_name(name),
       m_computeIterations(64),
-      m_vertexArray(sf::PrimitiveType::Points, Window::GetWidth() * Window::GetHeight()),
-      m_fractalArray(new int[Window::GetWidth() * Window::GetHeight()])
+      m_vertexArray(sf::PrimitiveType::Points, (Window::GetWidth() - 200) * Window::GetHeight()),
+      m_fractalArray(new int[(Window::GetWidth() - 200) * Window::GetHeight()])
 {
+    m_simWidth = Window::GetWidth() - 200;
+    m_simHeight = Window::GetHeight();
+
     for (size_t i = 0; i < m_vertexArray.getVertexCount(); i++)
     {
-        m_vertexArray[i].position = sf::Vector2f(static_cast<float>(std::floor(i % Window::GetWidth())), static_cast<float>(std::floor(i / Window::GetWidth())));
+        m_vertexArray[i].position = sf::Vector2f(static_cast<float>(std::floor(i % m_simWidth)), static_cast<float>(std::floor(i / m_simWidth)));
     }
 
     float a = 0.1f;
@@ -43,14 +48,14 @@ void FractalSet::Draw()
 
 void FractalSet::Start(const std::pair<sf::Vector2f, sf::Vector2f> &viewport)
 {
-    double imageSectionWidth = static_cast<double>(Window::GetWidth()) / static_cast<double>(m_workers.size());
+    double imageSectionWidth = static_cast<double>(m_simWidth) / static_cast<double>(m_workers.size());
     double fractalSectionWidth = static_cast<double>(viewport.second.x - viewport.first.x) / static_cast<double>(m_workers.size());
     m_nWorkerComplete = 0;
 
     for (size_t i = 0; i < m_workers.size(); i++)
     {
         m_workers[i]->imageTL = sf::Vector2<double>(imageSectionWidth * i, 0.0f);
-        m_workers[i]->imageBR = sf::Vector2<double>(imageSectionWidth * (i + 1), Window::GetHeight());
+        m_workers[i]->imageBR = sf::Vector2<double>(imageSectionWidth * (i + 1), m_simHeight);
         m_workers[i]->fractalTL = sf::Vector2<double>(viewport.first.x + static_cast<double>(fractalSectionWidth * i), viewport.first.y);
         m_workers[i]->fractalBR = sf::Vector2<double>(viewport.first.x + static_cast<double>(fractalSectionWidth * (i + 1)), viewport.second.y);
         m_workers[i]->iterations = m_computeIterations;
@@ -66,16 +71,16 @@ void FractalSet::Start(const std::pair<sf::Vector2f, sf::Vector2f> &viewport)
 
 void FractalSet::ReconstructImage()
 {
-    for (int y = 0; y < Window::GetHeight(); y++)
+    for (int y = 0; y < m_simHeight; y++)
     {
-        for (int x = 0; x < Window::GetWidth(); x++)
+        for (int x = 0; x < m_simWidth; x++)
         {
-            int i = m_fractalArray[y * Window::GetWidth() + x];
+            int i = m_fractalArray[y * m_simWidth + x];
             float a = 0.1f;
             sf::Uint8 r = static_cast<sf::Uint8>(30.0f * (0.5f * m_rSinLookup[i] + 0.5f));
             sf::Uint8 g = static_cast<sf::Uint8>(30.0f * (0.5f * m_gSinLookup[i] + 0.5f));
             sf::Uint8 b = static_cast<sf::Uint8>(30.0f * (0.5f * m_bSinLookup[i] + 0.5f));
-            m_vertexArray[y * Window::GetWidth() + x].color = {r, g, b};
+            m_vertexArray[y * m_simWidth + x].color = {r, g, b};
         }
     }
 }
@@ -85,7 +90,6 @@ void FractalSet::AddWorker(Worker *worker)
     worker->alive = true;
     worker->fractalArray = m_fractalArray;
     worker->nWorkers = m_workers.size();
-    worker->screenWidth = Window::GetWidth();
     worker->thread = std::thread(&FractalSet::Worker::Compute, worker);
     m_workers.push_back(worker);
 }

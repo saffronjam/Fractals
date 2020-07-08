@@ -20,6 +20,7 @@ public:
 
     void SetFractalSet(const std::string &fractal);
     void SetIterationCount(size_t iterations);
+    void SetJuliaC(const std::complex<double> c);
 
 private:
     std::map<std::string, FractalSet *> m_fractalSets;
