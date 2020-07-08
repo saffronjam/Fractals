@@ -55,19 +55,19 @@ void Camera::Update()
         }
     }
 
-    Zoom((Mouse::GetVerticalScroll() / 100.0f) + 1.0f);
+    Zoom((Mouse::GetVerticalScroll() / 70.0f) + 1.0f);
 
-    float angle = 0.0f;
+    // float angle = 0.0f;
 
-    if (Keyboard::IsDown(sf::Keyboard::Q))
-    {
-        angle += m_rps * 360.0f * Clock::Delta().asSeconds();
-    }
-    if (Keyboard::IsDown(sf::Keyboard::E))
-    {
-        angle -= m_rps * 360.0f * Clock::Delta().asSeconds();
-    }
-    Rotate(angle);
+    // if (Keyboard::IsDown(sf::Keyboard::Q))
+    // {
+    //     angle += m_rps * 360.0f * Clock::Delta().asSeconds();
+    // }
+    // if (Keyboard::IsDown(sf::Keyboard::E))
+    // {
+    //     angle -= m_rps * 360.0f * Clock::Delta().asSeconds();
+    // }
+    // Rotate(angle);
 
     if (Keyboard::IsPressed(sf::Keyboard::R))
     {

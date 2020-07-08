@@ -76,10 +76,20 @@ void FractalSet::ReconstructImage()
         for (int x = 0; x < m_simWidth; x++)
         {
             int i = m_fractalArray[y * m_simWidth + x];
-            float a = 0.1f;
-            sf::Uint8 r = static_cast<sf::Uint8>(30.0f * (0.5f * m_rSinLookup[i] + 0.5f));
-            sf::Uint8 g = static_cast<sf::Uint8>(30.0f * (0.5f * m_gSinLookup[i] + 0.5f));
-            sf::Uint8 b = static_cast<sf::Uint8>(30.0f * (0.5f * m_bSinLookup[i] + 0.5f));
+            sf::Uint8 r, g, b;
+            if (i != m_computeIterations)
+            {
+                float a = 0.1f;
+                r = static_cast<sf::Uint8>(30.0f * (0.5f * m_rSinLookup[i] + 0.5f));
+                g = static_cast<sf::Uint8>(30.0f * (0.5f * m_gSinLookup[i] + 0.5f));
+                b = static_cast<sf::Uint8>(30.0f * (0.5f * m_bSinLookup[i] + 0.5f));
+            }
+            else
+            {
+                r = 0.0f;
+                g = 0.0f;
+                b = 0.0f;
+            }
             m_vertexArray[y * m_simWidth + x].color = {r, g, b};
         }
     }

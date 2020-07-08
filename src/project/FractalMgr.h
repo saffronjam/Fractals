@@ -47,9 +47,12 @@ private:
 
     bool m_drawComplexLines;
 
+    std::complex<double> m_juliaC;
+    std::complex<double> m_juliaCGoal;
     JuliaState m_juliaState;
     float m_animationTimer;
 
     // Cached
     size_t m_iterations;
+    size_t m_iterationsGoal;
 };

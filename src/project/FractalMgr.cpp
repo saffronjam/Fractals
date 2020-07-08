@@ -44,6 +44,9 @@ void FractalMgr::Update(sfg::Adjustment::Ptr cr, sfg::Adjustment::Ptr ci)
             SetJuliaC({x, y});
             cr->SetValue(x + 2.5);
             ci->SetValue(y + 2.5);
+            m_animationTimer += Clock::Delta().asSeconds() / 2.0f;
+            if (m_animationTimer > 2.0f * PI<>)
+                m_animationTimer = 0.0f;
             break;
         }
         case JuliaState::FollowCursor:
@@ -63,9 +66,33 @@ void FractalMgr::Update(sfg::Adjustment::Ptr cr, sfg::Adjustment::Ptr ci)
             break;
         }
         }
-        m_animationTimer += Clock::Delta().asSeconds() / 2.0f;
-        if (m_animationTimer > 2.0f * PI<>)
-            m_animationTimer = 0.0f;
+    }
+
+    if (m_activeFractalSet == "Julia" && !m_updatedThisFrame && m_juliaC != m_juliaCGoal)
+    {
+        auto julia = dynamic_cast<Julia *>(m_fractalSets["Julia"]);
+        if (julia != nullptr)
+        {
+            m_juliaC = m_juliaCGoal;
+            m_updatedThisFrame = true;
+            julia->SetC(m_juliaC);
+            if (m_activeFractalSet == "Julia")
+            {
+                m_fractalSets.at("Julia")->Start(m_lastViewport);
+                m_fractalSets.at("Julia")->ReconstructImage();
+            }
+        }
+    }
+    if (!m_updatedThisFrame && m_iterations != m_iterationsGoal)
+    {
+        m_iterations = m_iterationsGoal;
+        m_updatedThisFrame = true;
+        for (auto &[name, fractalSet] : m_fractalSets)
+        {
+            fractalSet->SetComputeIteration(m_iterations);
+            fractalSet->Start(m_lastViewport);
+            fractalSet->ReconstructImage();
+        }
     }
 }
 
@@ -97,33 +124,10 @@ void FractalMgr::SetFractalSet(const std::string &fractal)
 
 void FractalMgr::SetIterationCount(size_t iterations)
 {
-    if (!m_updatedThisFrame)
-    {
-        m_updatedThisFrame = true;
-        for (auto &[name, fractalSet] : m_fractalSets)
-        {
-            fractalSet->SetComputeIteration(iterations);
-            fractalSet->Start(m_lastViewport);
-            fractalSet->ReconstructImage();
-        }
-        m_iterations = iterations;
-    }
+    m_iterationsGoal = iterations;
 }
 
 void FractalMgr::SetJuliaC(const std::complex<double> c)
 {
-    if (!m_updatedThisFrame)
-    {
-        m_updatedThisFrame = true;
-        auto julia = dynamic_cast<Julia *>(m_fractalSets["Julia"]);
-        if (julia != nullptr)
-        {
-            julia->SetC(c);
-            if (m_activeFractalSet == "Julia")
-            {
-                m_fractalSets.at("Julia")->Start(m_lastViewport);
-                m_fractalSets.at("Julia")->ReconstructImage();
-            }
-        }
-    }
+    m_juliaCGoal = c;
 }

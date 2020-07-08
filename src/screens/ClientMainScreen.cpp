@@ -25,6 +25,8 @@ void ClientMainScreen::OnEntry()
     // -------------- ALL LABELS ------------------
     auto labelMandelbrotControls = sfg::Label::Create("Mandelbrot Controls");
     auto labelJuliaControls = sfg::Label::Create("Julia Controls");
+    auto labelPanHint = sfg::Label::Create("Hold down both mouse buttons to pan around");
+    auto labelZoomHint = sfg::Label::Create("Use your mouse wheel to zoom");
 
     // --------------  NUMBER OF ITERATIONS CONTROLLER ------------------
     auto labelIterNum = sfg::Label::Create();
@@ -175,6 +177,8 @@ void ClientMainScreen::OnEntry()
     mainBox->Pack(comboBoxFractalChoice, false);
     mainBox->Pack(boxMandelbrotControls, false);
     mainBox->Pack(boxJuliaControls, false);
+    mainBox->Pack(labelPanHint, false, false);
+    mainBox->Pack(labelZoomHint, false, false);
 
     // -------------- ADD TO MAIN WINDOW ------------------
     auto window = sfg::Window::Create(sfg::Window::Style::BACKGROUND);
