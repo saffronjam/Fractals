@@ -26,8 +26,10 @@ void ClientMainScreen::OnEntry()
     FPSLimiter::SetDesiredFPS(144.0f);
 
     // -------------- ALL LABELS ------------------
-    auto labelMandelbrotControls = sfg::Label::Create("Mandelbrot Controls");
-    auto labelJuliaControls = sfg::Label::Create("Julia Controls");
+    auto labelMandelbrotControls = sfg::Label::Create("---- Mandelbrot Controls ----");
+    auto labelJuliaControls = sfg::Label::Create("---- Julia Controls ----");
+    auto labelPalette = sfg::Label::Create("---- Palette ----");
+    auto labelPerformance = sfg::Label::Create("---- Performance ----");
     auto labelPanHint = sfg::Label::Create("Hold down both mouse buttons to pan around");
     auto labelZoomHint = sfg::Label::Create("Use your mouse wheel to zoom");
     m_labelFPS = sfg::Label::Create("");
@@ -194,7 +196,28 @@ void ClientMainScreen::OnEntry()
 
     comboBoxFractalChoice->SelectItem(1);
 
+    // --------------- PALETTE CHOICE -------------------
+    auto radioButtonPalFiery = sfg::RadioButton::Create("Fiery");
+    auto radioButtonPalUV = sfg::RadioButton::Create("UV", radioButtonPalFiery->GetGroup());
+    auto radioButtonPalGreyScale = sfg::RadioButton::Create("Greyscale", radioButtonPalFiery->GetGroup());
+
+    radioButtonPalFiery->GetSignal(sfg::RadioButton::OnToggle).Connect([this] { m_fractalMgr.SetPalette(FractalSet::Palette::Fiery); });
+    radioButtonPalUV->GetSignal(sfg::RadioButton::OnToggle).Connect([this] { m_fractalMgr.SetPalette(FractalSet::Palette::UV); });
+    radioButtonPalGreyScale->GetSignal(sfg::RadioButton::OnToggle).Connect([this] { m_fractalMgr.SetPalette(FractalSet::Palette::GreyScale); });
+
+    radioButtonPalFiery->SetActive(true);
+
+    auto boxPalChoice = sfg::Box::Create(sfg::Box::Orientation::VERTICAL);
+    boxPalChoice->Pack(labelPalette);
+    boxPalChoice->Pack(radioButtonPalFiery);
+    boxPalChoice->Pack(radioButtonPalUV);
+    boxPalChoice->Pack(radioButtonPalGreyScale);
+
     // --------------- SUB BOXES ----------------------
+    auto boxMainControls = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 5.0f);
+    boxMainControls->Pack(comboBoxFractalChoice);
+    boxMainControls->Pack(boxIterNum);
+
     auto boxMandelbrotControls = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 5.0f);
     boxMandelbrotControls->Pack(labelMandelbrotControls);
     boxMandelbrotControls->Pack(checkButtonDrawComplexLines);
@@ -204,16 +227,17 @@ void ClientMainScreen::OnEntry()
     boxJuliaControls->Pack(boxJuliaC);
     boxJuliaControls->Pack(boxJuliaAnimation);
 
-    auto boxPerformance = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 2.0f);
+    auto boxPerformance = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 5.0f);
+    boxPerformance->Pack(labelPerformance);
     boxPerformance->Pack(m_labelFPS);
     boxPerformance->Pack(m_labelFrametime);
 
     // -------------- ADD TO MAIN BOX ------------------
-    auto mainBox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 15.0f);
-    mainBox->Pack(boxIterNum, false);
-    mainBox->Pack(comboBoxFractalChoice, false);
+    auto mainBox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 25.0f);
+    mainBox->Pack(boxMainControls, false);
     mainBox->Pack(boxMandelbrotControls, false);
     mainBox->Pack(boxJuliaControls, false);
+    mainBox->Pack(boxPalChoice, false);
     mainBox->Pack(boxPerformance, false);
     mainBox->Pack(labelPanHint, false);
     mainBox->Pack(labelZoomHint, false);

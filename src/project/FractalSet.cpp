@@ -5,15 +5,19 @@ int FractalSet::m_simWidth(0);
 int FractalSet::m_simHeight(0);
 
 FractalSet::FractalSet(const std::string &name)
-    : m_name(name),
-      m_computeIterations(64),
-      m_vertexArray(sf::PrimitiveType::Points, (Window::GetWidth() - 200) * Window::GetHeight()),
-      m_fractalArray(new int[(Window::GetWidth() - 200) * Window::GetHeight()])
+        : m_name(name),
+          m_currentPalette(Fiery),
+          m_computeIterations(64),
+          m_vertexArray(sf::PrimitiveType::Points, (Window::GetWidth() - 200) * Window::GetHeight()),
+          m_fractalArray(new int[(Window::GetWidth() - 200) * Window::GetHeight()]),
+          m_palettes(3)
 {
     m_simWidth = Window::GetWidth() - 200;
     m_simHeight = Window::GetHeight();
 
-    m_colorPalette.loadFromFile("res/fractalPal.png");
+    m_palettes[Fiery].loadFromFile("res/pals/fiery.png");
+    m_palettes[UV].loadFromFile("res/pals/uv.png");
+    m_palettes[GreyScale].loadFromFile("res/pals/greyscale.png");
 
     for (size_t i = 0; i < m_vertexArray.getVertexCount(); i++)
     {
@@ -65,7 +69,7 @@ void FractalSet::Start(const std::pair<sf::Vector2f, sf::Vector2f> &viewport)
 
 void FractalSet::ReconstructImage()
 {
-    auto colorPal = m_colorPalette.getPixelsPtr();
+    auto colorPal = m_palettes[m_currentPalette].getPixelsPtr();
     for (int y = 0; y < m_simHeight; y++)
     {
         for (int x = 0; x < m_simWidth; x++)

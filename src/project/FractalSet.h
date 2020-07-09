@@ -15,6 +15,14 @@
 
 class FractalSet
 {
+public:
+    enum Palette
+    {
+        Fiery,
+        UV,
+        GreyScale
+    };
+
 protected:
     struct Worker;
 
@@ -33,6 +41,7 @@ public:
     const std::string &GetName() const noexcept { return m_name; }
 
     void SetComputeIteration(size_t iterations) noexcept;
+    void SetPalette(Palette palette) noexcept { m_currentPalette = palette; }
 
 protected:
     std::string m_name;
@@ -41,13 +50,15 @@ protected:
     static int m_simHeight;
 
 private:
+    Palette m_currentPalette;
+
     std::vector<Worker *> m_workers;
 
     size_t m_computeIterations;
     sf::VertexArray m_vertexArray;
     int *m_fractalArray;
 
-    sf::Image m_colorPalette;
+    std::vector<sf::Image> m_palettes;
 
 protected:
     struct Worker

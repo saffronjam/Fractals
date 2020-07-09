@@ -9,6 +9,7 @@
 #include <SFGUI/CheckButton.hpp>
 #include <SFGUI/ComboBox.hpp>
 #include <SFGUI/Desktop.hpp>
+#include <SFGUI/Image.hpp>
 #include <SFGUI/Label.hpp>
 #include <SFGUI/RadioButton.hpp>
 #include <SFGUI/Scale.hpp>

@@ -68,7 +68,17 @@ void FractalMgr::Update(sfg::Adjustment::Ptr cr, sfg::Adjustment::Ptr ci)
         }
     }
 
-    if (!m_updatedThisFrame && m_iterations != m_iterationsGoal)
+    if (!m_updatedThisFrame && m_palette != m_desiredPalette)
+    {
+        m_palette = m_desiredPalette;
+        m_updatedThisFrame = true;
+        for (auto&[name, fractalSet] : m_fractalSets)
+        {
+            fractalSet->SetPalette(m_palette);
+            fractalSet->ReconstructImage();
+        }
+    }
+    else if (!m_updatedThisFrame && m_iterations != m_iterationsGoal)
     {
         m_iterations = m_iterationsGoal;
         m_updatedThisFrame = true;
@@ -79,7 +89,7 @@ void FractalMgr::Update(sfg::Adjustment::Ptr cr, sfg::Adjustment::Ptr ci)
             fractalSet->ReconstructImage();
         }
     }
-    if (m_activeFractalSet == "Julia" && !m_updatedThisFrame && m_juliaC != m_juliaCGoal)
+    else if (m_activeFractalSet == "Julia" && !m_updatedThisFrame && m_juliaC != m_juliaCGoal)
     {
         auto julia = dynamic_cast<Julia *>(m_fractalSets["Julia"]);
         if (julia != nullptr)
@@ -127,7 +137,11 @@ void FractalMgr::SetIterationCount(size_t iterations)
     m_iterationsGoal = iterations;
 }
 
-void FractalMgr::SetJuliaC(const std::complex<double> c)
+void FractalMgr::SetJuliaC(const std::complex<double>& c)
 {
     m_juliaCGoal = c;
+}
+void FractalMgr::SetPalette(FractalSet::Palette palette)
+{
+    m_desiredPalette = palette;
 }

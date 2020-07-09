@@ -31,8 +31,9 @@ public:
 
     void SetFractalSet(const std::string &fractal);
     void SetIterationCount(size_t iterations);
-    void SetJuliaC(const std::complex<double> c);
+    void SetJuliaC(const std::complex<double> &c);
     void SetDrawComplexLines(bool onoff) noexcept { m_drawComplexLines = onoff; }
+    void SetPalette(FractalSet::Palette palette);
 
     void SetJuliaSetState(JuliaState state) noexcept { m_juliaState = state; }
 
@@ -51,6 +52,9 @@ private:
     std::complex<double> m_juliaCGoal;
     JuliaState m_juliaState;
     float m_animationTimer;
+
+    FractalSet::Palette m_palette;
+    FractalSet::Palette m_desiredPalette;
 
     // Cached
     size_t m_iterations;
