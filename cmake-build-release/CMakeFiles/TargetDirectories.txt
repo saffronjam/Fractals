@@ -1,4 +1,0 @@
-C:/Users/emka/source/repos/V-Fractals/cmake-build-release/CMakeFiles/Client.dir
-C:/Users/emka/source/repos/V-Fractals/cmake-build-release/CMakeFiles/Server.dir
-C:/Users/emka/source/repos/V-Fractals/cmake-build-release/CMakeFiles/edit_cache.dir
-C:/Users/emka/source/repos/V-Fractals/cmake-build-release/CMakeFiles/rebuild_cache.dir
