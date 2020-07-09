@@ -47,7 +47,7 @@ protected:
 
     bool Init();
 
-    virtual void OnEvent(const sf::Event &event) override;
+    void HandleEvent(const sf::Event &event) override;
 
 protected:
     sf::VideoMode m_videoMode;

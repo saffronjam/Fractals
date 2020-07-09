@@ -6,12 +6,11 @@
 
 #include "Clock.h"
 #include "EventMgr.h"
+#include "Window.h"
 
 class GuiMgr : public EventHandler
 {
 public:
-    GuiMgr();
-
     static void Update() noexcept { m_desktop.Update(Clock::Delta().asSeconds()); };
     static void Draw() noexcept { m_sfgui.Display(*Window::GetSFWindow()); }
 
@@ -24,7 +23,7 @@ public:
     };
 
 private:
-    virtual void OnEvent(const sf::Event &event) noexcept override;
+    void HandleEvent(const sf::Event &event) noexcept override;
 
 private:
     static sfg::SFGUI m_sfgui;

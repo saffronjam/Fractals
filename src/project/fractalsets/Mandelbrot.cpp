@@ -26,6 +26,11 @@ void Mandelbrot::MandelbrotWorker::Compute()
     {
         std::unique_lock<std::mutex> lm(mutex);
         cvStart.wait(lm);
+        if(!alive)
+        {
+            m_nWorkerComplete++;
+            return;
+        }
 
         double xScale = (fractalBR.x - fractalTL.x) / (imageBR.x - imageTL.x);
         double yScale = (fractalBR.y - fractalTL.y) / (imageBR.y - imageTL.y);

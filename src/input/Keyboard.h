@@ -8,35 +8,23 @@ class Keyboard : public EventHandler
 {
 public:
     using Callback = std::function<void(const sf::Event::KeyEvent &)>;
-    enum class CallbackEvent
+    enum CallbackEvent
     {
-        KeyPressed,
-        KeyReleased
+        OnKeyPressed,
+        OnKeyReleased
     };
 
 public:
-    // Set up call-back function in eventMgr
-    Keyboard() noexcept;
-    ~Keyboard() noexcept;
+    Keyboard() = default;
+    ~Keyboard() = default;
     Keyboard(const Keyboard &) = delete;
     Keyboard &operator=(const Keyboard &) = delete;
 
     // Move keymap into prev-keymap
     static void Update() noexcept;
 
-    template <typename T>
-    static void AddCallback(const CallbackEvent &event, T callback) noexcept
-    {
-        switch (event)
-        {
-        case CallbackEvent::KeyPressed:
-        case CallbackEvent::KeyReleased:
-            m_callbacks[event].push_back(callback);
-            break;
-        default:
-            break;
-        }
-    }
+    template<Keyboard::CallbackEvent EventType, typename T>
+    void AddCallback(const T& callback) noexcept;
 
     static bool IsDown(const sf::Keyboard::Key &key) noexcept;
     static bool IsPressed(const sf::Keyboard::Key &key) noexcept;
@@ -45,11 +33,11 @@ public:
     static std::string GetTextInput() noexcept { return m_textInputBuffer; }
 
 private:
-    virtual void OnEvent(const sf::Event &event) noexcept override;
+    void HandleEvent(const sf::Event &event) noexcept override;
 
-    static void OnPress(const sf::Event::KeyEvent &event) noexcept;
-    static void OnRelease(const sf::Event::KeyEvent &event) noexcept;
-    static void OnTextInput(unsigned char character) noexcept;
+    static void HandlePress(const sf::Event::KeyEvent &event) noexcept;
+    static void HandleRelease(const sf::Event::KeyEvent &event) noexcept;
+    static void HandleTextInput(unsigned char character) noexcept;
 
 private:
     static std::map<sf::Keyboard::Key, bool> m_keymap;
@@ -57,3 +45,13 @@ private:
     static std::map<CallbackEvent, std::vector<Callback>> m_callbacks;
     static std::string m_textInputBuffer;
 };
+
+template<Keyboard::CallbackEvent EventType, typename T>
+void Keyboard::AddCallback(const T& callback) noexcept
+{
+    if constexpr(EventType == OnKeyPressed ||
+                 EventType == OnKeyReleased)
+    {
+        m_callbacks[EventType].push_back(callback);
+    }
+}

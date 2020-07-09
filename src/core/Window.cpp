@@ -7,6 +7,8 @@ std::string Window::m_title("Unnamed window");
 sf::VideoMode Window::m_videomode;
 sf::Uint32 Window::m_style;
 sf::Vector2i Window::m_nonFullscreenPosition;
+std::map<Window::CallbackEvent, std::vector<Window::ResizeCallback>> Window::m_resizeCallbacks;
+std::map<Window::CallbackEvent, std::vector<Window::FocusCallback>> Window::m_focusCallbacks;
 bool Window::m_fullscreen;
 
 Window::Window(const std::string &title, int width, int height)
@@ -64,7 +66,7 @@ void Window::DrawPoint(const sf::Vector2f &position, sf::Color color, float radi
     Window::Draw(circle);
 }
 
-void Window::DrawRect(const sf::FloatRect rect, sf::Color fillColor, bool outlined, sf::Color outlineColor)
+void Window::DrawRect(const sf::FloatRect &rect, sf::Color fillColor, bool outlined, sf::Color outlineColor)
 {
     sf::RectangleShape rectShape;
     rectShape.setPosition(rect.left, rect.top);
@@ -143,21 +145,12 @@ const std::string &Window::GetTitle() noexcept
     return m_title;
 }
 
-sf::View Window::GetCurrentView() noexcept
-{
-    assert("Attempted to handle the window without creating it" && m_sfWindow);
-    return m_sfWindow->getView();
-}
-
-sf::View Window::GetDefaultView() noexcept
-{
-    assert("Attempted to handle the window without creating it" && m_sfWindow);
-    return m_sfWindow->getDefaultView();
-}
-
 sf::IntRect Window::GetScreenRect() noexcept
 {
     assert("Attempted to handle the window without creating it" && m_sfWindow);
+
+    int xtest = 10;
+
     return sf::IntRect(0, 0, GetWidth(), GetHeight());
 }
 
@@ -197,8 +190,7 @@ void Window::SetFullscreen(bool toggle) noexcept
         m_videomode.height = GetSize().y;
         m_nonFullscreenPosition = GetPosition();
         m_sfWindow->create(sf::VideoMode::getFullscreenModes()[0], GetTitle(), sf::Style::Fullscreen);
-    }
-    else if (!toggle && m_fullscreen)
+    } else if (!toggle && m_fullscreen)
     {
         m_fullscreen = false;
         m_sfWindow->create(m_videomode, GetTitle(), m_style);
@@ -212,6 +204,51 @@ void Window::SetVSync(bool toggle) noexcept
     m_sfWindow->setVerticalSyncEnabled(toggle);
 }
 
+void Window::HandleEvent(const sf::Event &event) noexcept
+{
+    switch (event.type)
+    {
+    case sf::Event::EventType::Resized:
+    {
+        HandleResize(event);
+        break;
+    }
+    case sf::Event::EventType::GainedFocus:
+    {
+        HandleGainedFocus(event);
+        break;
+    }
+    case sf::Event::EventType::LostFocus:
+    {
+        HandleLostFocus(event);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void Window::HandleResize(const sf::Event &event) noexcept
+{
+    auto &vector = m_resizeCallbacks[OnResize];
+    for (auto &callback : vector)
+        callback(event);
+}
+
+void Window::HandleGainedFocus(const sf::Event &event) noexcept
+{
+    auto &vector = m_focusCallbacks[OnGainFocus];
+    for (auto &callback : vector)
+        callback();
+}
+
+void Window::HandleLostFocus(const sf::Event &event) noexcept
+{
+    auto &vector = m_focusCallbacks[OnLostFocus];
+    for (auto &callback : vector)
+        callback();
+}
+
 void Window::Render(const sf::Drawable &drawable, sf::RenderStates renderStates) noexcept
 {
     assert("Attempted to handle the window without creating it" && m_sfWindow);
@@ -219,8 +256,8 @@ void Window::Render(const sf::Drawable &drawable, sf::RenderStates renderStates)
 }
 
 Window::Exception::Exception(int line, const char *file, const char *errorString) noexcept
-    : IException(line, file),
-      errorString(errorString)
+        : IException(line, file),
+          errorString(errorString)
 {
 }
 

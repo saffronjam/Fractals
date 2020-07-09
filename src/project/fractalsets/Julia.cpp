@@ -3,7 +3,7 @@
 std::complex<double> Julia::m_c(-0.835, -0.2321);
 
 Julia::Julia()
-    : FractalSet("Julia")
+        : FractalSet("Julia")
 {
     for (int i = 0; i < 32; i++)
     {
@@ -17,6 +17,7 @@ sf::Vector2f Julia::TranslatePoint(const sf::Vector2f &point, int iterations)
 
     for (int n = 0; n < iterations && abs(z) < 2.0; n++)
         z = (z * z) + m_c;
+    z = (z * z) + m_c;
 
     return sf::Vector2f(z.real(), z.imag());
 }
@@ -32,6 +33,11 @@ void Julia::JuliaWorker::Compute()
     {
         std::unique_lock<std::mutex> lm(mutex);
         cvStart.wait(lm);
+        if(!alive)
+        {
+            m_nWorkerComplete++;
+            return;
+        }
 
         double xScale = (fractalBR.x - fractalTL.x) / (imageBR.x - imageTL.x);
         double yScale = (fractalBR.y - fractalTL.y) / (imageBR.y - imageTL.y);
@@ -73,7 +79,7 @@ void Julia::JuliaWorker::Compute()
                 _zi = SIMD_SetOne(y_pos);
                 _n = SIMD_SetZero256i();
 
-            repeat:
+                repeat:
                 _zr2 = SIMD_Mul(_zr, _zr);
                 _zi2 = SIMD_Mul(_zi, _zi);
                 _a = SIMD_Sub(_zr2, _zi2);

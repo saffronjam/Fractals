@@ -25,10 +25,13 @@ public:
 
     static void Update();
     static void Draw(const sf::Drawable &drawable, sf::RenderStates renderStates = sf::RenderStates::Default) noexcept;
-    static void Draw(const sf::Drawable &drawable, sf::RenderTexture &texture, sf::RenderStates renderStates = sf::RenderStates::Default) noexcept;
-    static void DrawText(const sf::Text &text, TextAlign align, sf::RenderStates renderStates = sf::RenderStates::Default) noexcept;
+    static void Draw(const sf::Drawable &drawable, sf::RenderTexture &texture,
+                     sf::RenderStates renderStates = sf::RenderStates::Default) noexcept;
+    static void
+    DrawText(const sf::Text &text, TextAlign align, sf::RenderStates renderStates = sf::RenderStates::Default) noexcept;
     static void DrawPoint(const sf::Vector2f &position, sf::Color color = sf::Color::Red, float radius = 3.0f) noexcept;
-    static void DrawRect(const sf::FloatRect rect, sf::Color fillColor = sf::Color::Red, bool outlined = false, sf::Color outlineColor = sf::Color::Black);
+    static void DrawRect(const sf::FloatRect rect, sf::Color fillColor = sf::Color::Red, bool outlined = false,
+                         sf::Color outlineColor = sf::Color::Black);
     static void DrawLine(const sf::Vector2f &first, const sf::Vector2f &second, sf::Color color = sf::Color::Red);
 
     static void Move(const sf::Vector2f &offset) noexcept;
@@ -39,7 +42,7 @@ public:
     static void SetZoom(float zoom) noexcept;
     static void SetRotation(float angle) noexcept;
 
-    static void Follow(const sf::Vector2f *follow) noexcept { m_follow = follow; }
+    static void Follow(const sf::Vector2f *follow) { m_follow = follow; }
     static void Unfollow() noexcept { m_follow.reset(); }
 
     ///Translate a point to world space

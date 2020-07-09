@@ -5,12 +5,7 @@
 
 #include <SFML/Window/Event.hpp>
 
-#include "Window.h"
-
-struct EventHandler
-{
-    virtual void OnEvent(const sf::Event &) = 0;
-};
+class EventHandler;
 
 class EventMgr
 {
@@ -20,4 +15,13 @@ public:
 
 private:
     static std::vector<EventHandler *> m_callbacks;
+};
+
+struct EventHandler
+{
+    EventHandler()
+    {
+        EventMgr::AddHandler(this);
+    }
+    virtual void HandleEvent(const sf::Event &) = 0;
 };

@@ -8,7 +8,6 @@ IApp::IApp()
       m_currentScreen(nullptr),
       m_isRunning(true)
 {
-    EventMgr::AddHandler(this);
 }
 
 IApp::~IApp()
@@ -112,7 +111,7 @@ bool IApp::Init()
     return true;
 }
 
-void IApp::OnEvent(const sf::Event &event)
+void IApp::HandleEvent(const sf::Event &event)
 {
     switch (event.type)
     {

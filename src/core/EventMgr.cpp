@@ -1,5 +1,7 @@
 #include "EventMgr.h"
 
+#include "Window.h"
+
 std::vector<EventHandler *> EventMgr::m_callbacks;
 
 void EventMgr::PollAll()
@@ -9,7 +11,7 @@ void EventMgr::PollAll()
     {
         for (auto &callback : m_callbacks)
         {
-            callback->OnEvent(event);
+            callback->HandleEvent(event);
         }
     }
 }

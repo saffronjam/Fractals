@@ -31,8 +31,7 @@ void Camera::Update()
     if (m_follow.has_value())
     {
         SetCenter(*m_follow.value());
-    }
-    else
+    } else
     {
         const sf::Vector2f cur_pos = Mouse::GetPos();
         if (Mouse::IsDown(sf::Mouse::Button::Left) && Mouse::IsDown(sf::Mouse::Button::Right))
@@ -47,8 +46,7 @@ void Camera::Update()
                 delta *= -1.0f;
                 Move(delta);
             }
-        }
-        else
+        } else
         {
             m_lastPos = cur_pos;
             m_engaged = false;
@@ -94,14 +92,14 @@ void Camera::DrawText(const sf::Text &text, TextAlign align, sf::RenderStates re
     float offset = 0.0f;
     switch (align)
     {
-    case TextAlign::Left:
-        break;
-    case TextAlign::Middle:
-        offset = textCpy.getLocalBounds().width / 2.0f;
-        break;
-    case TextAlign::Right:
-        offset = textCpy.getLocalBounds().width;
-        break;
+        case TextAlign::Left:
+            break;
+        case TextAlign::Middle:
+            offset = textCpy.getLocalBounds().width / 2.0f;
+            break;
+        case TextAlign::Right:
+            offset = textCpy.getLocalBounds().width;
+            break;
     }
 
     textCpy.setPosition(text.getPosition().x - offset, text.getPosition().y);

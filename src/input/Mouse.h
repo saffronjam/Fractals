@@ -14,46 +14,27 @@ public:
     using MoveCallback = std::function<void(const sf::Event::MouseMoveEvent &)>;
     using EnterLeaveCallback = std::function<void()>;
 
-    enum class CallbackEvent
+    enum CallbackEvent
     {
-        MouseWheelScrolled,
-        MouseButtonPressed,
-        MouseButtonReleased,
-        MouseMoved,
-        MouseEntered,
-        MouseLeft
+        OnMouseWheelScrolled,
+        OnMouseButtonPressed,
+        OnMouseButtonReleased,
+        OnMouseMoved,
+        OnMouseEntered,
+        OnMouseLeft
     };
 
 public:
-    // Set up call-back function in eventMgr
-    Mouse() noexcept;
-    ~Mouse() noexcept;
+    Mouse() = default;
+    ~Mouse() = default;
     Mouse(const Mouse &) = delete;
     Mouse &operator=(const Mouse &) = delete;
 
     // Move buttonMap into prev-buttonMap
     static void Update() noexcept;
 
-    template <Mouse::CallbackEvent EventType, typename T>
-    static void AddCallback(T callback) noexcept
-    {
-        if constexpr (EventType == CallbackEvent::MouseWheelScrolled)
-        {
-            m_scrollCallbacks[EventType].push_back(callback);
-        }
-        else if constexpr (EventType == CallbackEvent::MouseButtonPressed || EventType == CallbackEvent::MouseButtonReleased)
-        {
-            m_buttonCallbacks[EventType].push_back(callback);
-        }
-        else if constexpr (EventType == CallbackEvent::MouseMoved)
-        {
-            m_moveCallbacks[EventType].push_back(callback);
-        }
-        else if constexpr (EventType == CallbackEvent::MouseEntered || EventType == CallbackEvent::MouseLeft)
-        {
-            m_enterLeaveCallbacks[EventType].push_back(callback);
-        }
-    }
+    template<Mouse::CallbackEvent EventType, typename T>
+    static void AddCallback(const T &callback) noexcept;
 
     static bool IsDown(const sf::Mouse::Button &button) noexcept;
     static bool IsPressed(const sf::Mouse::Button &button) noexcept;
@@ -65,14 +46,14 @@ public:
     static float GetHorizontalScroll() noexcept { return m_horizontalScrollBuffer; }
 
 private:
-    virtual void OnEvent(const sf::Event &event) noexcept override;
+    void HandleEvent(const sf::Event &event) noexcept override;
 
-    static void OnPress(const sf::Event::MouseButtonEvent &event) noexcept;
-    static void OnRelease(const sf::Event::MouseButtonEvent &event) noexcept;
-    static void OnMove(const sf::Event::MouseMoveEvent &event) noexcept;
-    static void OnEnter() noexcept;
-    static void OnLeave() noexcept;
-    static void OnScroll(const sf::Event::MouseWheelScrollEvent &event) noexcept;
+    static void HandlePress(const sf::Event::MouseButtonEvent &event) noexcept;
+    static void HandleRelease(const sf::Event::MouseButtonEvent &event) noexcept;
+    static void HandleMove(const sf::Event::MouseMoveEvent &event) noexcept;
+    static void HandleEnter() noexcept;
+    static void HandleLeave() noexcept;
+    static void HandleScroll(const sf::Event::MouseWheelScrollEvent &event) noexcept;
 
 private:
     static std::map<sf::Mouse::Button, bool> m_buttonmap;
@@ -88,3 +69,21 @@ private:
     static float m_verticalScrollBuffer;
     static float m_horizontalScrollBuffer;
 };
+
+template<Mouse::CallbackEvent EventType, typename T>
+void Mouse::AddCallback(const T &callback) noexcept
+{
+    if constexpr (EventType == OnMouseWheelScrolled)
+    {
+        m_scrollCallbacks[EventType].push_back(callback);
+    } else if constexpr (EventType == OnMouseButtonPressed || EventType == OnMouseButtonReleased)
+    {
+        m_buttonCallbacks[EventType].push_back(callback);
+    } else if constexpr (EventType == OnMouseMoved)
+    {
+        m_moveCallbacks[EventType].push_back(callback);
+    } else if constexpr (EventType == OnMouseEntered || EventType == OnMouseLeft)
+    {
+        m_enterLeaveCallbacks[EventType].push_back(callback);
+    }
+}

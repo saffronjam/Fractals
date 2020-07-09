@@ -11,14 +11,6 @@ bool Mouse::m_inWindow = true;
 float Mouse::m_verticalScrollBuffer = 0.0f;
 float Mouse::m_horizontalScrollBuffer = 0.0f;
 
-Mouse::Mouse() noexcept
-{
-    EventMgr::AddHandler(this);
-}
-
-Mouse::~Mouse() noexcept
-{
-}
 
 void Mouse::Update() noexcept
 {
@@ -52,55 +44,52 @@ bool Mouse::AnyButtonDown() noexcept
     return false;
 }
 
-void Mouse::OnEvent(const sf::Event &event) noexcept
+void Mouse::HandleEvent(const sf::Event &event) noexcept
 {
     switch (event.type)
     {
     case sf::Event::EventType::MouseButtonPressed:
-        OnPress(event.mouseButton);
+        HandlePress(event.mouseButton);
         break;
-
     case sf::Event::EventType::MouseButtonReleased:
-        OnRelease(event.mouseButton);
+        HandleRelease(event.mouseButton);
         break;
-
     case sf::Event::EventType::MouseMoved:
-        OnMove(event.mouseMove);
+        HandleMove(event.mouseMove);
         break;
-
     case sf::Event::EventType::MouseEntered:
-        OnEnter();
+        HandleEnter();
         break;
-
     case sf::Event::EventType::MouseLeft:
-        OnLeave();
+        HandleLeave();
         break;
-
     case sf::Event::EventType::MouseWheelScrolled:
-        OnScroll(event.mouseWheelScroll);
+        HandleScroll(event.mouseWheelScroll);
+        break;
+    default:
         break;
     }
 }
 
-void Mouse::OnPress(const sf::Event::MouseButtonEvent &event) noexcept
+void Mouse::HandlePress(const sf::Event::MouseButtonEvent &event) noexcept
 {
-    auto &vector = m_buttonCallbacks[CallbackEvent::MouseButtonPressed];
+    auto &vector = m_buttonCallbacks[OnMouseButtonPressed];
     for (auto &callback : vector)
         callback(event);
     m_buttonmap[event.button] = true;
 }
 
-void Mouse::OnRelease(const sf::Event::MouseButtonEvent &event) noexcept
+void Mouse::HandleRelease(const sf::Event::MouseButtonEvent &event) noexcept
 {
-    auto &vector = m_buttonCallbacks[CallbackEvent::MouseButtonReleased];
+    auto &vector = m_buttonCallbacks[OnMouseButtonReleased];
     for (auto &callback : vector)
         callback(event);
     m_buttonmap[event.button] = false;
 }
 
-void Mouse::OnMove(const sf::Event::MouseMoveEvent &event) noexcept
+void Mouse::HandleMove(const sf::Event::MouseMoveEvent &event) noexcept
 {
-    auto &vector = m_moveCallbacks[CallbackEvent::MouseMoved];
+    auto &vector = m_moveCallbacks[OnMouseMoved];
     for (auto &callback : vector)
         callback(event);
     if (!m_inWindow && AnyButtonDown() || m_inWindow)
@@ -109,33 +98,33 @@ void Mouse::OnMove(const sf::Event::MouseMoveEvent &event) noexcept
     }
 }
 
-void Mouse::OnEnter() noexcept
+void Mouse::HandleEnter() noexcept
 {
-    auto &vector = m_enterLeaveCallbacks[CallbackEvent::MouseEntered];
+    auto &vector = m_enterLeaveCallbacks[OnMouseEntered];
     for (auto &callback : vector)
         callback();
     m_inWindow = true;
 }
 
-void Mouse::OnLeave() noexcept
+void Mouse::HandleLeave() noexcept
 {
-    auto &vector = m_enterLeaveCallbacks[CallbackEvent::MouseLeft];
+    auto &vector = m_enterLeaveCallbacks[OnMouseLeft];
     for (auto &callback : vector)
         callback();
     m_inWindow = false;
 }
 
-void Mouse::OnScroll(const sf::Event::MouseWheelScrollEvent &event) noexcept
+void Mouse::HandleScroll(const sf::Event::MouseWheelScrollEvent &event) noexcept
 {
-    auto &vector = m_scrollCallbacks[CallbackEvent::MouseWheelScrolled];
+    auto &vector = m_scrollCallbacks[OnMouseWheelScrolled];
     for (auto &callback : vector)
         callback(event);
     if (event.wheel == sf::Mouse::Wheel::HorizontalWheel)
     {
         m_horizontalScrollBuffer += event.delta;
-    }
-    else if (event.wheel == sf::Mouse::Wheel::VerticalWheel)
+    } else if (event.wheel == sf::Mouse::Wheel::VerticalWheel)
     {
         m_verticalScrollBuffer += event.delta;
     }
 }
+

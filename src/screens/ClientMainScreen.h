@@ -29,9 +29,6 @@ public:
     virtual int GetPreviousScreenIndex() const override;
 
 private:
-    void CheckInput();
-
-private:
     AppClient &m_parent;
 
     FractalMgr m_fractalMgr;

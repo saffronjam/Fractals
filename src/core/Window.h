@@ -2,6 +2,8 @@
 
 #include <string>
 #include <cassert>
+#include <vector>
+#include <map>
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -13,11 +15,22 @@
 #include "TextAlign.h"
 #include "Log.h"
 #include "Lib.h"
+#include "EventMgr.h"
 
-class Window
+class Window : public EventHandler
 {
-    friend class Draw;
     friend class Camera;
+
+public:
+    using ResizeCallback = std::function<void(const sf::Event &)>;
+    using FocusCallback = std::function<void()>;
+
+    enum CallbackEvent
+    {
+        OnResize,
+        OnGainFocus,
+        OnLostFocus
+    };
 
 public:
     Window(const std::string &title, int width, int height);
@@ -26,9 +39,11 @@ public:
     Window &operator=(const Window &) = delete;
 
     static void Draw(const sf::Drawable &drawable, sf::RenderStates renderStates = sf::RenderStates::Default) noexcept;
-    static void DrawText(const sf::Text &text, TextAlign align = TextAlign::Left, sf::RenderStates renderStates = sf::RenderStates::Default) noexcept;
+    static void DrawText(const sf::Text &text, TextAlign align = TextAlign::Left,
+                         sf::RenderStates renderStates = sf::RenderStates::Default) noexcept;
     static void DrawPoint(const sf::Vector2f &position, sf::Color color = sf::Color::Red, float radius = 3.0f) noexcept;
-    static void DrawRect(const sf::FloatRect rect, sf::Color fillColor = sf::Color::Red, bool outlined = false, sf::Color outlineColor = sf::Color::Black);
+    static void DrawRect(const sf::FloatRect &rect, sf::Color fillColor = sf::Color::Red, bool outlined = false,
+                         sf::Color outlineColor = sf::Color::Black);
     static void DrawLine(const sf::Vector2f &first, const sf::Vector2f &second, sf::Color color = sf::Color::Red);
     static void Clear();
     static void Present() noexcept;
@@ -41,12 +56,9 @@ public:
     static int GetWidth() noexcept;
     static int GetHeight() noexcept;
     static const std::string &GetTitle() noexcept;
-    static sf::View GetCurrentView() noexcept;
-    static sf::View GetDefaultView() noexcept;
     static sf::IntRect GetScreenRect() noexcept;
 
-    static bool IsFullscreen() noexcept;
-    static bool IsVSyncEnabled() noexcept;
+    static bool IsFullscreen() noexcept { return m_fullscreen; }
 
     static void SetPosition(const sf::Vector2i &pos) noexcept;
     static void SetSize(const sf::Vector2u &size) noexcept;
@@ -55,9 +67,15 @@ public:
     static void SetFullscreen(bool toggle) noexcept;
     static void SetVSync(bool toggle) noexcept;
 
+    template<Window::CallbackEvent EventType, typename T>
+    static void AddCallback(const T &callback) noexcept;
+
 private:
+    void HandleEvent(const sf::Event &event) noexcept override;
+    static void HandleResize(const sf::Event &event) noexcept;
+    static void HandleGainedFocus(const sf::Event &event) noexcept;
+    static void HandleLostFocus(const sf::Event &event) noexcept;
     static void Render(const sf::Drawable &drawable, sf::RenderStates renderStates = sf::RenderStates::Default) noexcept;
-    static void ResetNdcTransform() noexcept;
 
 private:
     static sf::RenderWindow *m_sfWindow;
@@ -68,6 +86,9 @@ private:
     static sf::Uint32 m_style;
     static sf::Vector2i m_nonFullscreenPosition;
 
+    static std::map<CallbackEvent, std::vector<ResizeCallback>> m_resizeCallbacks;
+    static std::map<CallbackEvent, std::vector<FocusCallback>> m_focusCallbacks;
+
     static bool m_fullscreen;
 
 public:
@@ -76,10 +97,23 @@ public:
     public:
         Exception(int line, const char *file, const char *errorString) noexcept;
         const char *what() const noexcept override;
-        virtual const char *GetType() const noexcept override;
+        const char *GetType() const noexcept override;
         const char *GetErrorString() const noexcept;
 
     private:
         std::string errorString;
     };
 };
+
+template<Window::CallbackEvent EventType, typename T>
+void Window::AddCallback(const T &callback) noexcept
+{
+    if constexpr (EventType == OnResize)
+    {
+        m_resizeCallbacks[EventType].push_back(callback);
+    } else if constexpr(EventType == OnGainFocus ||
+                        EventType == OnLostFocus)
+    {
+        m_focusCallbacks[EventType].push_back(callback);
+    }
+}
