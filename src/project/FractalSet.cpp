@@ -10,7 +10,7 @@ FractalSet::FractalSet(const std::string &name)
           m_computeIterations(64),
           m_vertexArray(sf::PrimitiveType::Points, (Window::GetWidth() - 200) * Window::GetHeight()),
           m_fractalArray(new int[(Window::GetWidth() - 200) * Window::GetHeight()]),
-          m_palettes(3)
+          m_palettes(4)
 {
     m_simWidth = Window::GetWidth() - 200;
     m_simHeight = Window::GetHeight();
@@ -18,6 +18,7 @@ FractalSet::FractalSet(const std::string &name)
     m_palettes[Fiery].loadFromFile("res/pals/fiery.png");
     m_palettes[UV].loadFromFile("res/pals/uv.png");
     m_palettes[GreyScale].loadFromFile("res/pals/greyscale.png");
+    m_palettes[Rainbow].loadFromFile("res/pals/rainbow.png");
 
     for (size_t i = 0; i < m_vertexArray.getVertexCount(); i++)
     {

@@ -64,8 +64,8 @@ void Julia::JuliaWorker::Compute()
         _x_pos_offsets = SIMD_Set(0.0, 1.0, 2.0, 3.0);
         _x_pos_offsets = SIMD_Mul(_x_pos_offsets, _x_scale);
 
-        _ci = SIMD_SetOne(m_c.real());
-        _cr = SIMD_SetOne(m_c.imag());
+        _cr = SIMD_SetOne(m_c.real());
+        _ci = SIMD_SetOne(m_c.imag());
 
         for (y = imageTL.y; y < imageBR.y; y++)
         {

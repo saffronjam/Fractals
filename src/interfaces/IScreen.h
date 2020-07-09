@@ -15,6 +15,7 @@
 #include <SFGUI/Scale.hpp>
 #include <SFGUI/Scrollbar.hpp>
 #include <SFGUI/SFGUI.hpp>
+#include <SFGUI/Entry.hpp>
 #include <SFGUI/Window.hpp>
 
 #include "Window.h"

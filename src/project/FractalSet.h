@@ -20,7 +20,8 @@ public:
     {
         Fiery,
         UV,
-        GreyScale
+        GreyScale,
+        Rainbow
     };
 
 protected:

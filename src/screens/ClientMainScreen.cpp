@@ -48,7 +48,7 @@ void ClientMainScreen::OnEntry()
     auto adjustmentIterNum = scaleIterNum->GetAdjustment();
     adjustmentIterNum->SetLower(10.0f);
     adjustmentIterNum->SetUpper(500.0f);
-    adjustmentIterNum->SetMinorStep(10.0f);
+    adjustmentIterNum->SetMinorStep(1.0f);
     adjustmentIterNum->SetMajorStep(500.0f);
 
     adjustmentIterNum->GetSignal(sfg::Adjustment::OnChange).Connect([adjustmentIterNum, labelIterNum, this]
@@ -81,64 +81,125 @@ void ClientMainScreen::OnEntry()
                                                                                });
 
     // -------------- JULIA COMPLEX C ADJUSTMENTS  -----------------
-    auto labelJuliaC = sfg::Label::Create();
+    auto labelLeftJuliaC = sfg::Label::Create("R: ");
+    auto labelRightJuliaC = sfg::Label::Create("I: ");
     auto scaleJuliaCr = sfg::Scale::Create(sfg::Scale::Orientation::HORIZONTAL);
     auto scaleJuliaCi = sfg::Scale::Create(sfg::Scale::Orientation::HORIZONTAL);
 
+    auto entryJuliaCr = sfg::Entry::Create("");
+    auto entryJuliaCi = sfg::Entry::Create("");
+
     m_adjustmentJuliaCr = scaleJuliaCr->GetAdjustment();
-    m_adjustmentJuliaCr->SetLower(0.0f);
-    m_adjustmentJuliaCr->SetUpper(5.0f);
-    m_adjustmentJuliaCr->SetMinorStep(0.05f);
-    m_adjustmentJuliaCr->SetMajorStep(1.0f);
+    m_adjustmentJuliaCr->SetLower(-2.0f);
+    m_adjustmentJuliaCr->SetUpper(2.0f);
+    m_adjustmentJuliaCr->SetMinorStep(0.005f);
+    m_adjustmentJuliaCr->SetMajorStep(0.005f);
 
     m_adjustmentJuliaCi = scaleJuliaCi->GetAdjustment();
-    m_adjustmentJuliaCi->SetLower(0.0f);
-    m_adjustmentJuliaCi->SetUpper(5.0f);
-    m_adjustmentJuliaCi->SetMinorStep(0.05f);
-    m_adjustmentJuliaCi->SetMajorStep(1.0f);
+    m_adjustmentJuliaCi->SetLower(-2.0f);
+    m_adjustmentJuliaCi->SetUpper(2.0f);
+    m_adjustmentJuliaCi->SetMinorStep(0.005f);
+    m_adjustmentJuliaCi->SetMajorStep(0.005f);
 
-    m_adjustmentJuliaCr->GetSignal(sfg::Adjustment::OnChange).Connect([this, labelJuliaC]
+    m_adjustmentJuliaCr->GetSignal(sfg::Adjustment::OnChange).Connect([this, entryJuliaCr, entryJuliaCi]
                                                                       {
-                                                                          double real =
-                                                                                  m_adjustmentJuliaCr->GetValue() - 2.5;
-                                                                          double imag =
-                                                                                  m_adjustmentJuliaCi->GetValue() - 2.5;
-                                                                          char sign = imag < 0.0 ? '-' : '+';
-                                                                          std::ostringstream oss;
-                                                                          oss << std::fixed << std::setprecision(2)
-                                                                              << real << " " << sign << " " << abs(imag)
-                                                                              << "i";
-                                                                          labelJuliaC->SetText(oss.str());
-                                                                          m_fractalMgr.SetJuliaC(
-                                                                                  std::complex<double>(real, imag));
+                                                                          double real = m_adjustmentJuliaCr->GetValue();
+                                                                          double imag = m_adjustmentJuliaCi->GetValue();
+                                                                          try
+                                                                          {
+                                                                              if (real != std::stof(std::string(entryJuliaCr->GetText())))
+                                                                              {
+                                                                                  std::ostringstream oss;
+                                                                                  oss  << std::setprecision(4) << real;
+                                                                                  entryJuliaCr->SetText(oss.str());
+                                                                              }
+                                                                              if (imag != std::stof(std::string(entryJuliaCi->GetText())))
+                                                                              {
+                                                                                  std::ostringstream oss;
+                                                                                  oss  << std::setprecision(4) << imag;
+                                                                                  entryJuliaCi->SetText(oss.str());
+                                                                              }
+                                                                          }
+                                                                          catch (const std::invalid_argument &e)
+                                                                          {
+                                                                          }
+                                                                          m_fractalMgr.SetJuliaC(std::complex<double>(real, imag));
                                                                       });
 
-    m_adjustmentJuliaCi->GetSignal(sfg::Adjustment::OnChange).Connect([this, labelJuliaC]
+    m_adjustmentJuliaCi->GetSignal(sfg::Adjustment::OnChange).Connect([this, entryJuliaCr, entryJuliaCi]
                                                                       {
-                                                                          double real =
-                                                                                  m_adjustmentJuliaCr->GetValue() - 2.5;
-                                                                          double imag =
-                                                                                  m_adjustmentJuliaCi->GetValue() - 2.5;
-                                                                          char sign = imag < 0.0 ? '-' : '+';
-                                                                          std::ostringstream oss;
-                                                                          oss << std::fixed << std::setprecision(2)
-                                                                              << real << " " << sign << " " << abs(imag)
-                                                                              << "i";
-                                                                          labelJuliaC->SetText(oss.str());
-                                                                          m_fractalMgr.SetJuliaC(
-                                                                                  std::complex<double>(real, imag));
+                                                                          double real = m_adjustmentJuliaCr->GetValue();
+                                                                          double imag = m_adjustmentJuliaCi->GetValue();
+                                                                          try
+                                                                          {
+                                                                              if (real != std::stof(std::string(entryJuliaCr->GetText())))
+                                                                              {
+                                                                                  std::ostringstream oss;
+                                                                                  oss  << std::setprecision(4) << real;
+                                                                                  entryJuliaCr->SetText(oss.str());
+                                                                              }
+                                                                              if (imag != std::stof(std::string(entryJuliaCi->GetText())))
+                                                                              {
+                                                                                  std::ostringstream oss;
+                                                                                  oss  << std::setprecision(4) << imag;
+                                                                                  entryJuliaCi->SetText(oss.str());
+                                                                              }
+                                                                          }
+                                                                          catch (const std::invalid_argument &e)
+                                                                          {
+                                                                          }
+                                                                          m_fractalMgr.SetJuliaC(std::complex<double>(real, imag));
                                                                       });
 
-    m_adjustmentJuliaCr->SetValue(2.5f);
-    m_adjustmentJuliaCi->SetValue(2.5f);
+    entryJuliaCr->GetSignal(sfg::Entry::OnTextChanged).Connect([this, entryJuliaCr]
+                                                               {
+                                                                   try
+                                                                   {
+                                                                       float result = std::stof(std::string(entryJuliaCr->GetText()));
+                                                                       if (result != m_adjustmentJuliaCr->GetValue())
+                                                                           m_adjustmentJuliaCr->SetValue(result);
+                                                                   }
+                                                                   catch (const std::invalid_argument &e)
+                                                                   {
+                                                                   }
+                                                               });
+    entryJuliaCi->GetSignal(sfg::Entry::OnTextChanged).Connect([this, entryJuliaCi]
+                                                               {
+                                                                   try
+                                                                   {
+                                                                       float result = std::stof(std::string(entryJuliaCi->GetText()));
+                                                                       if (result != m_adjustmentJuliaCi->GetValue())
+                                                                           m_adjustmentJuliaCi->SetValue(result);
+                                                                   }
+                                                                   catch (const std::invalid_argument &e)
+                                                                   {
+                                                                   }
+                                                               });
 
-    scaleJuliaCr->SetRequisition(sf::Vector2f(80.f, 20.f));
-    scaleJuliaCi->SetRequisition(sf::Vector2f(80.f, 20.f));
+    m_adjustmentJuliaCr->SetValue(0.0f);
+    m_adjustmentJuliaCi->SetValue(0.0f);
 
-    auto boxJuliaC = sfg::Box::Create(sfg::Box::Orientation::VERTICAL);
-    boxJuliaC->Pack(labelJuliaC, false, false);
-    boxJuliaC->Pack(scaleJuliaCr, false, false);
-    boxJuliaC->Pack(scaleJuliaCi, false, false);
+    scaleJuliaCr->SetRequisition(sf::Vector2f(120.f, 20.f));
+    scaleJuliaCi->SetRequisition(sf::Vector2f(120.f, 20.f));
+    entryJuliaCr->SetRequisition(sf::Vector2f(65.f, 0.f));
+    entryJuliaCi->SetRequisition(sf::Vector2f(65.f, 0.f));
+
+    auto boxJuliaCReal = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL, 1.0f);
+    boxJuliaCReal->Pack(labelLeftJuliaC);
+    boxJuliaCReal->Pack(entryJuliaCr);
+
+    auto boxJuliaCImag = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL, 1.0f);
+    boxJuliaCImag->Pack(labelRightJuliaC);
+    boxJuliaCImag->Pack(entryJuliaCi);
+
+    auto boxJuliaCNumber = sfg::Box::Create(sfg::Box::Orientation::HORIZONTAL, 10.0f);
+    boxJuliaCNumber->Pack(boxJuliaCReal);
+    boxJuliaCNumber->Pack(boxJuliaCImag);
+
+    auto boxJuliaC = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 3.0f);
+    boxJuliaC->Pack(boxJuliaCNumber);
+    boxJuliaC->Pack(scaleJuliaCr);
+    boxJuliaC->Pack(scaleJuliaCi);
 
     // -------------- JULIA ANIMATION RADIOBUTTONS -----------------
     auto radioButtonNone = sfg::RadioButton::Create("None");
@@ -200,10 +261,12 @@ void ClientMainScreen::OnEntry()
     auto radioButtonPalFiery = sfg::RadioButton::Create("Fiery");
     auto radioButtonPalUV = sfg::RadioButton::Create("UV", radioButtonPalFiery->GetGroup());
     auto radioButtonPalGreyScale = sfg::RadioButton::Create("Greyscale", radioButtonPalFiery->GetGroup());
+    auto radioButtonPalRainbow = sfg::RadioButton::Create("Rainbow", radioButtonPalFiery->GetGroup());
 
     radioButtonPalFiery->GetSignal(sfg::RadioButton::OnToggle).Connect([this] { m_fractalMgr.SetPalette(FractalSet::Palette::Fiery); });
     radioButtonPalUV->GetSignal(sfg::RadioButton::OnToggle).Connect([this] { m_fractalMgr.SetPalette(FractalSet::Palette::UV); });
     radioButtonPalGreyScale->GetSignal(sfg::RadioButton::OnToggle).Connect([this] { m_fractalMgr.SetPalette(FractalSet::Palette::GreyScale); });
+    radioButtonPalRainbow->GetSignal(sfg::RadioButton::OnToggle).Connect([this] { m_fractalMgr.SetPalette(FractalSet::Palette::Rainbow); });
 
     radioButtonPalFiery->SetActive(true);
 
@@ -212,6 +275,7 @@ void ClientMainScreen::OnEntry()
     boxPalChoice->Pack(radioButtonPalFiery);
     boxPalChoice->Pack(radioButtonPalUV);
     boxPalChoice->Pack(radioButtonPalGreyScale);
+    boxPalChoice->Pack(radioButtonPalRainbow);
 
     // --------------- SUB BOXES ----------------------
     auto boxMainControls = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 5.0f);
