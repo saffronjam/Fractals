@@ -1,30 +1,49 @@
 #include "Julia.h"
 
-std::complex<double> Julia::m_c(-0.835, -0.2321);
+std::complex<double> Julia::m_currentC(0.0, 0.0);
 
 Julia::Julia()
-        : FractalSet("Julia")
+        : FractalSet("Julia"),
+          m_desiredC(0.0, 0.0),
+          m_startC(0.0, 0.0),
+          m_cTransitionTimer(0.0f),
+          m_cTransitionDuration(0.5f)
 {
     for (int i = 0; i < 32; i++)
     {
         AddWorker(new JuliaWorker);
     }
+
+}
+
+void Julia::Update()
+{
+    if (m_cTransitionTimer <= m_cTransitionDuration && m_state == State::None)
+    {
+        float delta = (std::sin((m_cTransitionTimer / m_cTransitionDuration) * PI<> - PI<> / 2.0f) + 1.0f) / 2.0f;
+        m_currentC.real(m_startC.real() + static_cast<double>(delta) * (m_desiredC.real() - m_startC.real()));
+        m_currentC.imag(m_startC.imag() + static_cast<double>(delta) * (m_desiredC.imag() - m_startC.imag()));
+
+        Start();
+        MarkImageForReconstruct();
+        m_cTransitionTimer += Clock::Delta().asSeconds();
+    }
+    else
+    {
+        m_currentC = m_desiredC;
+    }
+    FractalSet::Update();
 }
 
 sf::Vector2f Julia::TranslatePoint(const sf::Vector2f &point, int iterations)
 {
-    std::complex<double> z(point.x, point.y);
-
-    for (int n = 0; n < iterations && abs(z) < 2.0; n++)
-        z = (z * z) + m_c;
-    z = (z * z) + m_c;
-
-    return sf::Vector2f(z.real(), z.imag());
 }
 
 void Julia::SetC(const std::complex<double> &c)
 {
-    m_c = c;
+    m_desiredC = c;
+    m_startC = m_currentC;
+    m_cTransitionTimer = 0.0f;
 }
 
 void Julia::JuliaWorker::Compute()
@@ -33,7 +52,7 @@ void Julia::JuliaWorker::Compute()
     {
         std::unique_lock<std::mutex> lm(mutex);
         cvStart.wait(lm);
-        if(!alive)
+        if (!alive)
         {
             m_nWorkerComplete++;
             return;
@@ -64,8 +83,8 @@ void Julia::JuliaWorker::Compute()
         _x_pos_offsets = SIMD_Set(0.0, 1.0, 2.0, 3.0);
         _x_pos_offsets = SIMD_Mul(_x_pos_offsets, _x_scale);
 
-        _cr = SIMD_SetOne(m_c.real());
-        _ci = SIMD_SetOne(m_c.imag());
+        _cr = SIMD_SetOne(m_currentC.real());
+        _ci = SIMD_SetOne(m_currentC.imag());
 
         for (y = imageTL.y; y < imageBR.y; y++)
         {

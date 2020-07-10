@@ -31,25 +31,30 @@ public:
     FractalSet(const std::string &name);
     ~FractalSet();
 
-    void Update();
+    virtual void Update();
     void Draw();
 
-    void Start(const std::pair<sf::Vector2f, sf::Vector2f> &viewport);
-    void ReconstructImage();
+    void Start();
+    void MarkImageForReconstruct();
     void AddWorker(Worker *worker);
 
     virtual sf::Vector2f TranslatePoint(const sf::Vector2f &point, int iterations = 1) = 0;
 
     const std::string &GetName() const noexcept { return m_name; }
 
+    void SetSimBox(const std::pair<sf::Vector2f, sf::Vector2f> &box);
     void SetComputeIteration(size_t iterations) noexcept;
     void SetPalette(Palette palette) noexcept;
+
+    void ReconstructImage();
+private:
 
 protected:
     std::string m_name;
     static std::atomic<size_t> m_nWorkerComplete;
     static int m_simWidth;
     static int m_simHeight;
+    static std::pair<sf::Vector2f, sf::Vector2f> m_simBox;
 
 private:
     struct TransitionColor
@@ -60,6 +65,7 @@ private:
         float a;
     };
 
+    bool m_reconstructImage;
 
     Palette m_desiredPalette;
     sf::Image m_currentPalette;

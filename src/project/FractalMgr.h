@@ -12,15 +12,6 @@
 class FractalMgr
 {
 public:
-    enum JuliaState
-    {
-        Animate,
-        FollowCursor,
-        None,
-        Count
-    };
-
-public:
     FractalMgr();
     ~FractalMgr();
 
@@ -34,8 +25,7 @@ public:
     void SetJuliaC(const std::complex<double> &c);
     void SetDrawComplexLines(bool onoff) noexcept { m_drawComplexLines = onoff; }
     void SetPalette(FractalSet::Palette palette);
-
-    void SetJuliaSetState(JuliaState state) noexcept { m_juliaState = state; }
+    void SetJuliaSetState(Julia::State state);
 
 private:
     // Used to only make the GUI send updates ONCE every frame so that the adjustment bars doesn't freeze the screen
@@ -50,7 +40,6 @@ private:
 
     std::complex<double> m_juliaC;
     std::complex<double> m_juliaCGoal;
-    JuliaState m_juliaState;
     float m_animationTimer;
 
     FractalSet::Palette m_palette;

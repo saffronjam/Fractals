@@ -110,13 +110,13 @@ void ClientMainScreen::OnEntry()
                                                                               if (real != std::stof(std::string(entryJuliaCr->GetText())))
                                                                               {
                                                                                   std::ostringstream oss;
-                                                                                  oss  << std::setprecision(4) << real;
+                                                                                  oss << std::setprecision(4) << real;
                                                                                   entryJuliaCr->SetText(oss.str());
                                                                               }
                                                                               if (imag != std::stof(std::string(entryJuliaCi->GetText())))
                                                                               {
                                                                                   std::ostringstream oss;
-                                                                                  oss  << std::setprecision(4) << imag;
+                                                                                  oss << std::setprecision(4) << imag;
                                                                                   entryJuliaCi->SetText(oss.str());
                                                                               }
                                                                           }
@@ -135,13 +135,13 @@ void ClientMainScreen::OnEntry()
                                                                               if (real != std::stof(std::string(entryJuliaCr->GetText())))
                                                                               {
                                                                                   std::ostringstream oss;
-                                                                                  oss  << std::setprecision(4) << real;
+                                                                                  oss << std::setprecision(4) << real;
                                                                                   entryJuliaCr->SetText(oss.str());
                                                                               }
                                                                               if (imag != std::stof(std::string(entryJuliaCi->GetText())))
                                                                               {
                                                                                   std::ostringstream oss;
-                                                                                  oss  << std::setprecision(4) << imag;
+                                                                                  oss << std::setprecision(4) << imag;
                                                                                   entryJuliaCi->SetText(oss.str());
                                                                               }
                                                                           }
@@ -207,11 +207,11 @@ void ClientMainScreen::OnEntry()
     auto radioButtonFollowCursor = sfg::RadioButton::Create("Follow Cursor", radioButtonNone->GetGroup());
 
     radioButtonNone->GetSignal(sfg::ToggleButton::OnToggle).Connect(
-            [this] { m_fractalMgr.SetJuliaSetState(FractalMgr::JuliaState::None); });
+            [this] { m_fractalMgr.SetJuliaSetState(Julia::State::None); });
     radioButtonAnimate->GetSignal(sfg::ToggleButton::OnToggle).Connect(
-            [this] { m_fractalMgr.SetJuliaSetState(FractalMgr::JuliaState::Animate); });
+            [this] { m_fractalMgr.SetJuliaSetState(Julia::State::Animate); });
     radioButtonFollowCursor->GetSignal(sfg::ToggleButton::OnToggle).Connect(
-            [this] { m_fractalMgr.SetJuliaSetState(FractalMgr::JuliaState::FollowCursor); });
+            [this] { m_fractalMgr.SetJuliaSetState(Julia::State::FollowCursor); });
 
     radioButtonNone->SetActive(true);
 
@@ -244,7 +244,8 @@ void ClientMainScreen::OnEntry()
                     radioButtonNone->SetState(sfg::ComboBox::State::INSENSITIVE);
                     radioButtonAnimate->SetState(sfg::ComboBox::State::INSENSITIVE);
                     radioButtonFollowCursor->SetState(sfg::ComboBox::State::INSENSITIVE);
-                } else
+                }
+                else
                 {
                     checkButtonDrawComplexLines->SetState(sfg::ComboBox::State::INSENSITIVE);
                     scaleJuliaCr->SetState(sfg::ComboBox::State::NORMAL);
