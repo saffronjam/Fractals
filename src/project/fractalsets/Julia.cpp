@@ -72,8 +72,11 @@ void Julia::SetC(const std::complex<double> &c, bool animate)
     {
         m_startC = m_currentC;
         m_cTransitionTimer = 0.0f;
+    }else{
+        MarkForImageRecompute();
+        MarkForImageReconstruct();
     }
-    m_currentC = m_desiredC;
+    m_currentC = c;
     m_desiredC = c;
 }
 
