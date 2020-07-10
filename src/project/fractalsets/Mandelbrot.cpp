@@ -1,7 +1,8 @@
 #include "Mandelbrot.h"
 
 Mandelbrot::Mandelbrot()
-    : FractalSet("Mandelbrot")
+        : FractalSet("Mandelbrot"),
+          m_state(State::None)
 {
     for (int i = 0; i < 32; i++)
     {
@@ -20,15 +21,33 @@ sf::Vector2f Mandelbrot::TranslatePoint(const sf::Vector2f &point, int iteration
     return sf::Vector2f(z.real(), z.imag());
 }
 
+void Mandelbrot::Draw()
+{
+    if (m_state == State::ComplexLines && Mouse::GetPos().x < static_cast<float>(Window::GetWidth() < m_simWidth))
+    {
+        sf::Vector2f start = Camera::ScreenToWorld(Mouse::GetPos());
+        sf::Vector2f to = start;
+
+        for (int i = 1; i < m_computeIterations; i++)
+        {
+            sf::Vector2f from = TranslatePoint(start, i);
+            Camera::DrawLine(from, to, sf::Color(200, 200, 200, 60));
+            to = from;
+            Camera::DrawPoint(to, sf::Color(255, 255, 255, 150));
+        }
+    }
+    FractalSet::Draw();
+}
+
 void Mandelbrot::MandelbrotWorker::Compute()
 {
     while (alive)
     {
         std::unique_lock<std::mutex> lm(mutex);
         cvStart.wait(lm);
-        if(!alive)
+        if (!alive)
         {
-            m_nWorkerComplete++;
+            (*nWorkerComplete)++;
             return;
         }
 
@@ -38,7 +57,7 @@ void Mandelbrot::MandelbrotWorker::Compute()
         double y_pos = fractalTL.y;
 
         int y_offset = 0;
-        int row_size = m_simWidth;
+        int row_size = simWidth;
 
         int x, y;
 
@@ -72,7 +91,7 @@ void Mandelbrot::MandelbrotWorker::Compute()
                 _zi = SIMD_SetZero();
                 _n = SIMD_SetZero256i();
 
-            repeat:
+                repeat:
                 _zr2 = SIMD_Mul(_zr, _zr);
                 _zi2 = SIMD_Mul(_zi, _zi);
                 _a = SIMD_Sub(_zr2, _zi2);
@@ -102,6 +121,6 @@ void Mandelbrot::MandelbrotWorker::Compute()
             y_pos += yScale;
             y_offset += row_size;
         }
-        m_nWorkerComplete++;
+        (*nWorkerComplete)++;
     }
 }

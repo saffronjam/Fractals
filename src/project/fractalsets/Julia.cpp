@@ -1,19 +1,19 @@
 #include "Julia.h"
 
-std::complex<double> Julia::m_currentC(0.0, 0.0);
-
 Julia::Julia()
         : FractalSet("Julia"),
           m_desiredC(0.0, 0.0),
+          m_currentC(0.0, 0.0),
           m_startC(0.0, 0.0),
+          m_animationTimer(0.0f),
           m_cTransitionTimer(0.0f),
-          m_cTransitionDuration(0.5f)
+          m_cTransitionDuration(0.5f),
+          m_state(State::None)
 {
     for (int i = 0; i < 32; i++)
     {
         AddWorker(new JuliaWorker);
     }
-
 }
 
 void Julia::Update()
@@ -23,20 +23,43 @@ void Julia::Update()
         float delta = (std::sin((m_cTransitionTimer / m_cTransitionDuration) * PI<> - PI<> / 2.0f) + 1.0f) / 2.0f;
         m_currentC.real(m_startC.real() + static_cast<double>(delta) * (m_desiredC.real() - m_startC.real()));
         m_currentC.imag(m_startC.imag() + static_cast<double>(delta) * (m_desiredC.imag() - m_startC.imag()));
-
-        Start();
-        MarkImageForReconstruct();
+        MarkForImageRecompute();
+        MarkForImageReconstruct();
         m_cTransitionTimer += Clock::Delta().asSeconds();
     }
     else
     {
         m_currentC = m_desiredC;
     }
-    FractalSet::Update();
-}
+    for (auto &worker : m_workers)
+    {
+        auto juliaWorker = dynamic_cast<JuliaWorker *>(worker);
+        juliaWorker->c = m_currentC;
+    }
 
-sf::Vector2f Julia::TranslatePoint(const sf::Vector2f &point, int iterations)
-{
+    switch (m_state)
+    {
+    case Julia::State::Animate:
+    {
+        double x = 0.7885 * std::cos(m_animationTimer);
+        double y = 0.7885 * std::sin(m_animationTimer);
+        SetC(std::complex<double>(x, y));
+        m_animationTimer += Clock::Delta().asSeconds() / 2.0f;
+        if (m_animationTimer > 2.0f * PI<>)
+            m_animationTimer = 0.0f;
+        break;
+    }
+    case Julia::State::FollowCursor:
+    {
+        auto mousePos = Camera::ScreenToWorld(Mouse::GetPos());
+        SetC(std::complex<double>(mousePos.x, mousePos.y));
+        break;
+    }
+    default:
+        break;
+    }
+
+    FractalSet::Update();
 }
 
 void Julia::SetC(const std::complex<double> &c)
@@ -54,7 +77,7 @@ void Julia::JuliaWorker::Compute()
         cvStart.wait(lm);
         if (!alive)
         {
-            m_nWorkerComplete++;
+            nWorkerComplete++;
             return;
         }
 
@@ -64,7 +87,7 @@ void Julia::JuliaWorker::Compute()
         double y_pos = fractalTL.y;
 
         int y_offset = 0;
-        int row_size = m_simWidth;
+        int row_size = simWidth;
 
         int x, y;
 
@@ -83,8 +106,8 @@ void Julia::JuliaWorker::Compute()
         _x_pos_offsets = SIMD_Set(0.0, 1.0, 2.0, 3.0);
         _x_pos_offsets = SIMD_Mul(_x_pos_offsets, _x_scale);
 
-        _cr = SIMD_SetOne(m_currentC.real());
-        _ci = SIMD_SetOne(m_currentC.imag());
+        _cr = SIMD_SetOne(c.real());
+        _ci = SIMD_SetOne(c.imag());
 
         for (y = imageTL.y; y < imageBR.y; y++)
         {
@@ -129,6 +152,6 @@ void Julia::JuliaWorker::Compute()
             y_offset += row_size;
         }
 
-        m_nWorkerComplete++;
+        (*nWorkerComplete)++;
     }
 }

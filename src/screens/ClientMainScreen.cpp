@@ -58,8 +58,7 @@ void ClientMainScreen::OnEntry()
                                                                             << "Max Iterations: "
                                                                             << adjustmentIterNum->GetValue() << " ";
                                                                         labelIterNum->SetText(oss.str());
-                                                                        m_fractalMgr.SetIterationCount(
-                                                                                adjustmentIterNum->GetValue());
+                                                                        m_fractalMgr.SetComputeIterationCount(adjustmentIterNum->GetValue());
                                                                     });
 
     adjustmentIterNum->SetValue(80.0f);
@@ -76,8 +75,10 @@ void ClientMainScreen::OnEntry()
 
     checkButtonDrawComplexLines->GetSignal(sfg::CheckButton::OnToggle).Connect([this, checkButtonDrawComplexLines]
                                                                                {
-                                                                                   m_fractalMgr.SetDrawComplexLines(
-                                                                                           checkButtonDrawComplexLines->IsActive());
+                                                                                   if (checkButtonDrawComplexLines->IsActive())
+                                                                                       m_fractalMgr.SetMandelbrotState(Mandelbrot::State::ComplexLines);
+                                                                                   else
+                                                                                       m_fractalMgr.SetMandelbrotState(Mandelbrot::State::None);
                                                                                });
 
     // -------------- JULIA COMPLEX C ADJUSTMENTS  -----------------
@@ -207,11 +208,11 @@ void ClientMainScreen::OnEntry()
     auto radioButtonFollowCursor = sfg::RadioButton::Create("Follow Cursor", radioButtonNone->GetGroup());
 
     radioButtonNone->GetSignal(sfg::ToggleButton::OnToggle).Connect(
-            [this] { m_fractalMgr.SetJuliaSetState(Julia::State::None); });
+            [this] { m_fractalMgr.SetJuliaState(Julia::State::None); });
     radioButtonAnimate->GetSignal(sfg::ToggleButton::OnToggle).Connect(
-            [this] { m_fractalMgr.SetJuliaSetState(Julia::State::Animate); });
+            [this] { m_fractalMgr.SetJuliaState(Julia::State::Animate); });
     radioButtonFollowCursor->GetSignal(sfg::ToggleButton::OnToggle).Connect(
-            [this] { m_fractalMgr.SetJuliaSetState(Julia::State::FollowCursor); });
+            [this] { m_fractalMgr.SetJuliaState(Julia::State::FollowCursor); });
 
     radioButtonNone->SetActive(true);
 

@@ -28,33 +28,36 @@ protected:
     struct Worker;
 
 public:
-    FractalSet(const std::string &name);
-    ~FractalSet();
+    explicit FractalSet(std::string name);
+    virtual ~FractalSet();
 
     virtual void Update();
-    void Draw();
+    virtual void Draw();
 
-    void Start();
-    void MarkImageForReconstruct();
+    void MarkForImageRecompute() noexcept;
+    void MarkForImageReconstruct() noexcept;
     void AddWorker(Worker *worker);
 
-    virtual sf::Vector2f TranslatePoint(const sf::Vector2f &point, int iterations = 1) = 0;
-
-    const std::string &GetName() const noexcept { return m_name; }
+    [[nodiscard]] const std::string &GetName() const noexcept { return m_name; }
 
     void SetSimBox(const std::pair<sf::Vector2f, sf::Vector2f> &box);
-    void SetComputeIteration(size_t iterations) noexcept;
+    void SetComputeIterationCount(size_t iterations) noexcept;
     void SetPalette(Palette palette) noexcept;
 
-    void ReconstructImage();
 private:
+    void RecomputeImage();
+    void ReconstructImage();
 
 protected:
     std::string m_name;
-    static std::atomic<size_t> m_nWorkerComplete;
-    static int m_simWidth;
-    static int m_simHeight;
-    static std::pair<sf::Vector2f, sf::Vector2f> m_simBox;
+
+    size_t m_computeIterations;
+    std::vector<Worker *> m_workers;
+    std::atomic<size_t> m_nWorkerComplete;
+
+    int m_simWidth;
+    int m_simHeight;
+    std::pair<sf::Vector2f, sf::Vector2f> m_simBox;
 
 private:
     struct TransitionColor
@@ -65,8 +68,14 @@ private:
         float a;
     };
 
+    sf::VertexArray m_vertexArray;
+    int *m_fractalArray;
+
+    // Marks with true if the image should be recomputed/reconstructed this frame
+    bool m_recomputeImage;
     bool m_reconstructImage;
 
+    // Animate palette change
     Palette m_desiredPalette;
     sf::Image m_currentPalette;
     std::array<TransitionColor, 256> m_colorsStart;
@@ -75,16 +84,18 @@ private:
     float m_colorTransitionDuration;
     std::vector<sf::Image> m_palettes;
 
-    std::vector<Worker *> m_workers;
-
-    size_t m_computeIterations;
-    sf::VertexArray m_vertexArray;
-    int *m_fractalArray;
+    static constexpr int PaletteWidth = 256;
 
 protected:
     struct Worker
     {
+        virtual ~Worker() = default;
+        virtual void Compute() = 0;
+
+        std::atomic<size_t> *nWorkerComplete = nullptr;
+
         int *fractalArray;
+        int simWidth = 0;
 
         sf::Vector2<double> imageTL = {0.0f, 0.0f};
         sf::Vector2<double> imageBR = {0.0f, 0.0f};
@@ -98,6 +109,5 @@ protected:
         std::condition_variable cvStart;
         std::mutex mutex;
 
-        virtual void Compute() = 0;
     };
 };
