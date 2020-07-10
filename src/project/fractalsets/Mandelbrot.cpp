@@ -23,7 +23,8 @@ sf::Vector2f Mandelbrot::TranslatePoint(const sf::Vector2f &point, int iteration
 
 void Mandelbrot::Draw()
 {
-    if (m_state == State::ComplexLines && Mouse::GetPos().x < static_cast<float>(Window::GetWidth() < m_simWidth))
+    FractalSet::Draw();
+    if (m_state == State::ComplexLines && Mouse::GetPos().x < static_cast<float>(m_simWidth))
     {
         sf::Vector2f start = Camera::ScreenToWorld(Mouse::GetPos());
         sf::Vector2f to = start;
@@ -36,7 +37,6 @@ void Mandelbrot::Draw()
             Camera::DrawPoint(to, sf::Color(255, 255, 255, 150));
         }
     }
-    FractalSet::Draw();
 }
 
 void Mandelbrot::MandelbrotWorker::Compute()

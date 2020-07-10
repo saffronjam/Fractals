@@ -5,7 +5,6 @@ ClientMainScreen::ClientMainScreen(AppClient &parent)
         : m_parent(parent),
           m_updatePerformanceLabelsTimer(0.0f)
 {
-
 }
 
 ClientMainScreen::~ClientMainScreen()
@@ -90,75 +89,30 @@ void ClientMainScreen::OnEntry()
     auto entryJuliaCr = sfg::Entry::Create("");
     auto entryJuliaCi = sfg::Entry::Create("");
 
+    entryJuliaCr->SetState(sfg::Entry::State::INSENSITIVE);
+    entryJuliaCi->SetState(sfg::Entry::State::INSENSITIVE);
+
     m_adjustmentJuliaCr = scaleJuliaCr->GetAdjustment();
-    m_adjustmentJuliaCr->SetLower(-2.0f);
-    m_adjustmentJuliaCr->SetUpper(2.0f);
+    m_adjustmentJuliaCr->SetLower(0.0f);
+    m_adjustmentJuliaCr->SetUpper(5.0f);
     m_adjustmentJuliaCr->SetMinorStep(0.005f);
     m_adjustmentJuliaCr->SetMajorStep(0.005f);
 
     m_adjustmentJuliaCi = scaleJuliaCi->GetAdjustment();
-    m_adjustmentJuliaCi->SetLower(-2.0f);
-    m_adjustmentJuliaCi->SetUpper(2.0f);
+    m_adjustmentJuliaCi->SetLower(0.0f);
+    m_adjustmentJuliaCi->SetUpper(5.0f);
     m_adjustmentJuliaCi->SetMinorStep(0.005f);
     m_adjustmentJuliaCi->SetMajorStep(0.005f);
 
-    m_adjustmentJuliaCr->GetSignal(sfg::Adjustment::OnChange).Connect([this, entryJuliaCr, entryJuliaCi]
-                                                                      {
-                                                                          double real = m_adjustmentJuliaCr->GetValue();
-                                                                          double imag = m_adjustmentJuliaCi->GetValue();
-                                                                          try
-                                                                          {
-                                                                              if (real != std::stof(std::string(entryJuliaCr->GetText())))
-                                                                              {
-                                                                                  std::ostringstream oss;
-                                                                                  oss << std::setprecision(4) << real;
-                                                                                  entryJuliaCr->SetText(oss.str());
-                                                                              }
-                                                                              if (imag != std::stof(std::string(entryJuliaCi->GetText())))
-                                                                              {
-                                                                                  std::ostringstream oss;
-                                                                                  oss << std::setprecision(4) << imag;
-                                                                                  entryJuliaCi->SetText(oss.str());
-                                                                              }
-                                                                          }
-                                                                          catch (const std::invalid_argument &e)
-                                                                          {
-                                                                          }
-                                                                          m_fractalMgr.SetJuliaC(std::complex<double>(real, imag));
-                                                                      });
-
-    m_adjustmentJuliaCi->GetSignal(sfg::Adjustment::OnChange).Connect([this, entryJuliaCr, entryJuliaCi]
-                                                                      {
-                                                                          double real = m_adjustmentJuliaCr->GetValue();
-                                                                          double imag = m_adjustmentJuliaCi->GetValue();
-                                                                          try
-                                                                          {
-                                                                              if (real != std::stof(std::string(entryJuliaCr->GetText())))
-                                                                              {
-                                                                                  std::ostringstream oss;
-                                                                                  oss << std::setprecision(4) << real;
-                                                                                  entryJuliaCr->SetText(oss.str());
-                                                                              }
-                                                                              if (imag != std::stof(std::string(entryJuliaCi->GetText())))
-                                                                              {
-                                                                                  std::ostringstream oss;
-                                                                                  oss << std::setprecision(4) << imag;
-                                                                                  entryJuliaCi->SetText(oss.str());
-                                                                              }
-                                                                          }
-                                                                          catch (const std::invalid_argument &e)
-                                                                          {
-                                                                          }
-                                                                          m_fractalMgr.SetJuliaC(std::complex<double>(real, imag));
-                                                                      });
+    m_adjustmentJuliaCr->GetSignal(sfg::Adjustment::OnChange).Connect([this] { m_fractalMgr.SetJuliaCR(m_adjustmentJuliaCr->GetValue() - 2.5f); });
+    m_adjustmentJuliaCi->GetSignal(sfg::Adjustment::OnChange).Connect([this] { m_fractalMgr.SetJuliaCI(m_adjustmentJuliaCi->GetValue() - 2.5f); });
 
     entryJuliaCr->GetSignal(sfg::Entry::OnTextChanged).Connect([this, entryJuliaCr]
                                                                {
                                                                    try
                                                                    {
-                                                                       float result = std::stof(std::string(entryJuliaCr->GetText()));
-                                                                       if (result != m_adjustmentJuliaCr->GetValue())
-                                                                           m_adjustmentJuliaCr->SetValue(result);
+                                                                       float result = std::stof(std::string(entryJuliaCr->GetText())) + 2.5f;
+                                                                       m_adjustmentJuliaCr->SetValue(result);
                                                                    }
                                                                    catch (const std::invalid_argument &e)
                                                                    {
@@ -168,17 +122,16 @@ void ClientMainScreen::OnEntry()
                                                                {
                                                                    try
                                                                    {
-                                                                       float result = std::stof(std::string(entryJuliaCi->GetText()));
-                                                                       if (result != m_adjustmentJuliaCi->GetValue())
-                                                                           m_adjustmentJuliaCi->SetValue(result);
+                                                                       float result = std::stof(std::string(entryJuliaCi->GetText())) + 2.5f;
+                                                                       m_adjustmentJuliaCi->SetValue(result);
                                                                    }
                                                                    catch (const std::invalid_argument &e)
                                                                    {
                                                                    }
                                                                });
 
-    m_adjustmentJuliaCr->SetValue(0.0f);
-    m_adjustmentJuliaCi->SetValue(0.0f);
+    m_adjustmentJuliaCr->SetValue(2.5f);
+    m_adjustmentJuliaCi->SetValue(2.5f);
 
     scaleJuliaCr->SetRequisition(sf::Vector2f(120.f, 20.f));
     scaleJuliaCi->SetRequisition(sf::Vector2f(120.f, 20.f));
@@ -233,7 +186,11 @@ void ClientMainScreen::OnEntry()
     radioButtonFollowCursor->SetState(sfg::ComboBox::State::INSENSITIVE);
 
     comboBoxFractalChoice->GetSignal(sfg::ComboBox::OnSelect).Connect(
-            [this, comboBoxFractalChoice, checkButtonDrawComplexLines, scaleJuliaCr, scaleJuliaCi, radioButtonNone, radioButtonAnimate, radioButtonFollowCursor]
+            [this, comboBoxFractalChoice,
+                    checkButtonDrawComplexLines,
+                    scaleJuliaCr, scaleJuliaCi,
+                    radioButtonNone, radioButtonAnimate, radioButtonFollowCursor,
+                    entryJuliaCr, entryJuliaCi]
             {
                 const auto selectedItem = comboBoxFractalChoice->GetSelectedItem();
                 m_fractalMgr.SetFractalSet(comboBoxFractalChoice->GetItem(selectedItem));
@@ -245,6 +202,8 @@ void ClientMainScreen::OnEntry()
                     radioButtonNone->SetState(sfg::ComboBox::State::INSENSITIVE);
                     radioButtonAnimate->SetState(sfg::ComboBox::State::INSENSITIVE);
                     radioButtonFollowCursor->SetState(sfg::ComboBox::State::INSENSITIVE);
+                    entryJuliaCr->SetState(sfg::ComboBox::State::INSENSITIVE);
+                    entryJuliaCi->SetState(sfg::ComboBox::State::INSENSITIVE);
                 }
                 else
                 {
@@ -254,6 +213,8 @@ void ClientMainScreen::OnEntry()
                     radioButtonNone->SetState(sfg::ComboBox::State::NORMAL);
                     radioButtonAnimate->SetState(sfg::ComboBox::State::NORMAL);
                     radioButtonFollowCursor->SetState(sfg::ComboBox::State::NORMAL);
+                    entryJuliaCr->SetState(sfg::ComboBox::State::NORMAL);
+                    entryJuliaCi->SetState(sfg::ComboBox::State::NORMAL);
                 }
             });
 
@@ -310,7 +271,7 @@ void ClientMainScreen::OnEntry()
 
     // -------------- ADD TO MAIN WINDOW ------------------
     m_guiWindow = sfg::Window::Create(sfg::Window::Style::BACKGROUND);
-    m_guiWindow->SetPosition(sf::Vector2f(Window::GetWidth() - 200.0f, 0.0f));
+    m_guiWindow->SetPosition(sf::Vector2f(static_cast<float>(Window::GetWidth()) - 200.0f, 0.0f));
     m_guiWindow->SetRequisition(sf::Vector2f(200.0f, Window::GetHeight()));
     m_guiWindow->Add(mainBox);
 

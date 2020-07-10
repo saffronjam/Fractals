@@ -8,6 +8,7 @@ FractalSet::FractalSet(std::string name)
           m_simBox(vl::Null<>(), vl::Null<>()),
           m_desiredPalette(Fiery),
           m_reconstructImage(true),
+          m_recomputeImage(true),
           m_colorTransitionTimer(0.0f),
           m_colorTransitionDuration(0.7f),
           m_colorsStart(),
@@ -110,7 +111,6 @@ void FractalSet::SetSimBox(const std::pair<sf::Vector2f, sf::Vector2f> &box)
 void FractalSet::SetComputeIterationCount(size_t iterations) noexcept
 {
     m_computeIterations = iterations;
-    ReconstructImage();
 }
 
 void FractalSet::SetPalette(FractalSet::Palette palette) noexcept
@@ -122,24 +122,28 @@ void FractalSet::SetPalette(FractalSet::Palette palette) noexcept
 
 void FractalSet::RecomputeImage()
 {
-    double imageSectionWidth = static_cast<double>(m_simWidth) / static_cast<double>(m_workers.size());
-    double fractalSectionWidth = static_cast<double>(m_simBox.second.x - m_simBox.first.x) / static_cast<double>(m_workers.size());
-    m_nWorkerComplete = 0;
-
-    for (size_t i = 0; i < m_workers.size(); i++)
+    if (m_recomputeImage)
     {
-        m_workers[i]->imageTL = sf::Vector2<double>(imageSectionWidth * i, 0.0f);
-        m_workers[i]->imageBR = sf::Vector2<double>(imageSectionWidth * static_cast<double>(i + 1), m_simHeight);
-        m_workers[i]->fractalTL = sf::Vector2<double>(m_simBox.first.x + static_cast<double>(fractalSectionWidth * i), m_simBox.first.y);
-        m_workers[i]->fractalBR = sf::Vector2<double>(m_simBox.first.x + fractalSectionWidth * static_cast<double>(i + 1), m_simBox.second.y);
-        m_workers[i]->iterations = m_computeIterations;
+        double imageSectionWidth = static_cast<double>(m_simWidth) / static_cast<double>(m_workers.size());
+        double fractalSectionWidth = static_cast<double>(m_simBox.second.x - m_simBox.first.x) / static_cast<double>(m_workers.size());
+        m_nWorkerComplete = 0;
 
-        std::unique_lock<std::mutex> lm(m_workers[i]->mutex);
-        m_workers[i]->cvStart.notify_one();
-    }
+        for (size_t i = 0; i < m_workers.size(); i++)
+        {
+            m_workers[i]->imageTL = sf::Vector2<double>(imageSectionWidth * i, 0.0f);
+            m_workers[i]->imageBR = sf::Vector2<double>(imageSectionWidth * static_cast<double>(i + 1), m_simHeight);
+            m_workers[i]->fractalTL = sf::Vector2<double>(m_simBox.first.x + static_cast<double>(fractalSectionWidth * i), m_simBox.first.y);
+            m_workers[i]->fractalBR = sf::Vector2<double>(m_simBox.first.x + fractalSectionWidth * static_cast<double>(i + 1), m_simBox.second.y);
+            m_workers[i]->iterations = m_computeIterations;
 
-    while (m_nWorkerComplete < 1) // Wait for all workers to complete
-    {
+            std::unique_lock<std::mutex> lm(m_workers[i]->mutex);
+            m_workers[i]->cvStart.notify_one();
+        }
+
+        while (m_nWorkerComplete < m_workers.size()) // Wait for all workers to complete
+        {
+        }
+        m_recomputeImage = false;
     }
 }
 

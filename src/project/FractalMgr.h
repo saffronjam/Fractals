@@ -23,6 +23,8 @@ public:
     void SetFractalSet(const std::string &fractal);
     void SetComputeIterationCount(size_t iterations);
     void SetJuliaC(const std::complex<double> &c);
+    void SetJuliaCR(double r);
+    void SetJuliaCI(double i);
     void SetPalette(FractalSet::Palette palette);
     void SetMandelbrotState(Mandelbrot::State state);
     void SetJuliaState(Julia::State state);

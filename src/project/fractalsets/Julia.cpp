@@ -18,32 +18,13 @@ Julia::Julia()
 
 void Julia::Update()
 {
-    if (m_cTransitionTimer <= m_cTransitionDuration && m_state == State::None)
-    {
-        float delta = (std::sin((m_cTransitionTimer / m_cTransitionDuration) * PI<> - PI<> / 2.0f) + 1.0f) / 2.0f;
-        m_currentC.real(m_startC.real() + static_cast<double>(delta) * (m_desiredC.real() - m_startC.real()));
-        m_currentC.imag(m_startC.imag() + static_cast<double>(delta) * (m_desiredC.imag() - m_startC.imag()));
-        MarkForImageRecompute();
-        MarkForImageReconstruct();
-        m_cTransitionTimer += Clock::Delta().asSeconds();
-    }
-    else
-    {
-        m_currentC = m_desiredC;
-    }
-    for (auto &worker : m_workers)
-    {
-        auto juliaWorker = dynamic_cast<JuliaWorker *>(worker);
-        juliaWorker->c = m_currentC;
-    }
-
     switch (m_state)
     {
     case Julia::State::Animate:
     {
         double x = 0.7885 * std::cos(m_animationTimer);
         double y = 0.7885 * std::sin(m_animationTimer);
-        SetC(std::complex<double>(x, y));
+        SetC(std::complex<double>(x, y), false);
         m_animationTimer += Clock::Delta().asSeconds() / 2.0f;
         if (m_animationTimer > 2.0f * PI<>)
             m_animationTimer = 0.0f;
@@ -52,21 +33,48 @@ void Julia::Update()
     case Julia::State::FollowCursor:
     {
         auto mousePos = Camera::ScreenToWorld(Mouse::GetPos());
-        SetC(std::complex<double>(mousePos.x, mousePos.y));
+        SetC(std::complex<double>(mousePos.x, mousePos.y), false);
         break;
     }
     default:
         break;
     }
 
+    if (m_currentC != m_desiredC)
+    {
+        MarkForImageRecompute();
+        MarkForImageReconstruct();
+    }
+    if (m_cTransitionTimer <= m_cTransitionDuration && m_state == State::None)
+    {
+        float delta = (std::sin((m_cTransitionTimer / m_cTransitionDuration) * PI<> - PI<> / 2.0f) + 1.0f) / 2.0f;
+        m_currentC.real(m_startC.real() + static_cast<double>(delta) * (m_desiredC.real() - m_startC.real()));
+        m_currentC.imag(m_startC.imag() + static_cast<double>(delta) * (m_desiredC.imag() - m_startC.imag()));
+        m_cTransitionTimer += Clock::Delta().asSeconds();
+    }
+    else if (m_state != State::None)
+    {
+        m_currentC = m_desiredC;
+    }
+
+    for (auto &worker : m_workers)
+    {
+        auto juliaWorker = dynamic_cast<JuliaWorker *>(worker);
+        juliaWorker->c = m_currentC;
+    }
+
     FractalSet::Update();
 }
 
-void Julia::SetC(const std::complex<double> &c)
+void Julia::SetC(const std::complex<double> &c, bool animate)
 {
+    if (animate && abs(c - m_desiredC) > 0.1f)
+    {
+        m_startC = m_currentC;
+        m_cTransitionTimer = 0.0f;
+    }
+    m_currentC = m_desiredC;
     m_desiredC = c;
-    m_startC = m_currentC;
-    m_cTransitionTimer = 0.0f;
 }
 
 void Julia::JuliaWorker::Compute()
@@ -107,7 +115,7 @@ void Julia::JuliaWorker::Compute()
         _x_pos_offsets = SIMD_Mul(_x_pos_offsets, _x_scale);
 
         _cr = SIMD_SetOne(c.real());
-        _ci = SIMD_SetOne(c.imag());
+        _ci = SIMD_SetOne(-c.imag()); // The negative sign is intentional
 
         for (y = imageTL.y; y < imageBR.y; y++)
         {

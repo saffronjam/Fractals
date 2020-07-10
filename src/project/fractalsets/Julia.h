@@ -21,7 +21,9 @@ public:
     [[nodiscard]] const std::complex<double> &GetC() const noexcept { return m_desiredC; }
 
     void SetState(State state) noexcept { m_state = state; }
-    void SetC(const std::complex<double> &c);
+    void SetC(const std::complex<double> &c, bool animate = false);
+    void SetCR(double r, bool animate = false) { SetC(std::complex(r, GetC().imag()),animate); }
+    void SetCI(double i, bool animate = false) { SetC(std::complex(GetC().real(),i),animate); }
 
 private:
     State m_state;
