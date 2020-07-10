@@ -31,6 +31,7 @@ public:
     FractalSet(const std::string &name);
     ~FractalSet();
 
+    void Update();
     void Draw();
 
     void Start(const std::pair<sf::Vector2f, sf::Vector2f> &viewport);
@@ -42,7 +43,7 @@ public:
     const std::string &GetName() const noexcept { return m_name; }
 
     void SetComputeIteration(size_t iterations) noexcept;
-    void SetPalette(Palette palette) noexcept { m_currentPalette = palette; }
+    void SetPalette(Palette palette) noexcept;
 
 protected:
     std::string m_name;
@@ -51,7 +52,22 @@ protected:
     static int m_simHeight;
 
 private:
-    Palette m_currentPalette;
+    struct TransitionColor
+    {
+        float r;
+        float g;
+        float b;
+        float a;
+    };
+
+
+    Palette m_desiredPalette;
+    sf::Image m_currentPalette;
+    std::array<TransitionColor, 256> m_colorsStart;
+    std::array<TransitionColor, 256> m_colorsCurrent;
+    float m_colorTransitionTimer;
+    float m_colorTransitionDuration;
+    std::vector<sf::Image> m_palettes;
 
     std::vector<Worker *> m_workers;
 
@@ -59,13 +75,10 @@ private:
     sf::VertexArray m_vertexArray;
     int *m_fractalArray;
 
-    std::vector<sf::Image> m_palettes;
-
 protected:
     struct Worker
     {
         int *fractalArray;
-        size_t nWorkers = 0;
 
         sf::Vector2<double> imageTL = {0.0f, 0.0f};
         sf::Vector2<double> imageBR = {0.0f, 0.0f};

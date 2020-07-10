@@ -6,7 +6,9 @@ int FractalSet::m_simHeight(0);
 
 FractalSet::FractalSet(const std::string &name)
         : m_name(name),
-          m_currentPalette(Fiery),
+          m_desiredPalette(Fiery),
+          m_colorTransitionTimer(0.0f),
+          m_colorTransitionDuration(0.7f),
           m_computeIterations(64),
           m_vertexArray(sf::PrimitiveType::Points, (Window::GetWidth() - 200) * Window::GetHeight()),
           m_fractalArray(new int[(Window::GetWidth() - 200) * Window::GetHeight()]),
@@ -19,6 +21,15 @@ FractalSet::FractalSet(const std::string &name)
     m_palettes[UV].loadFromFile("res/pals/uv.png");
     m_palettes[GreyScale].loadFromFile("res/pals/greyscale.png");
     m_palettes[Rainbow].loadFromFile("res/pals/rainbow.png");
+
+    m_currentPalette.create(256, 1, m_palettes[m_desiredPalette].getPixelsPtr());
+
+    for (int i = 0; i < 256; i++)
+    {
+        const auto pix = m_currentPalette.getPixel(i, 0);
+        m_colorsStart[i] = {(float) pix.r / 255.0f, (float) pix.g / 255.0f, (float) pix.b / 255.0f, (float) pix.a / 255.0f};
+    }
+    m_colorsCurrent = m_colorsStart;
 
     for (size_t i = 0; i < m_vertexArray.getVertexCount(); i++)
     {
@@ -37,6 +48,27 @@ FractalSet::~FractalSet()
             worker->thread.join();
         delete worker;
         worker = nullptr;
+    }
+}
+
+void FractalSet::Update()
+{
+    m_colorTransitionTimer += Clock::Delta().asSeconds();
+    if (m_colorTransitionTimer <= m_colorTransitionDuration)
+    {
+        float delta = (std::sin((m_colorTransitionTimer / m_colorTransitionDuration) * PI<> - PI<> / 2.0f) + 1.0f) / 2.0f;
+        for (int x = 0; x < 256; x++)
+        {
+            const auto pix = m_palettes[m_desiredPalette].getPixel(x, 0);
+            TransitionColor goalColor = {(float) pix.r / 255.0f, (float) pix.g / 255.0f, (float) pix.b / 255.0f, (float) pix.a / 255.0f};
+            const auto &startColor = m_colorsStart[x];
+            auto &currentColor = m_colorsCurrent[x];
+            currentColor.r = startColor.r + delta * (goalColor.r - startColor.r);
+            currentColor.g = startColor.g + delta * (goalColor.g - startColor.g);
+            currentColor.b = startColor.b + delta * (goalColor.b - startColor.b);
+            m_currentPalette.setPixel(x, 0, {(sf::Uint8) (currentColor.r * 255.0f), (sf::Uint8) (currentColor.g * 255.0f), (sf::Uint8) (currentColor.b * 255.0f), (sf::Uint8) (currentColor.a * 255.0f)});
+        }
+        ReconstructImage();
     }
 }
 
@@ -70,7 +102,7 @@ void FractalSet::Start(const std::pair<sf::Vector2f, sf::Vector2f> &viewport)
 
 void FractalSet::ReconstructImage()
 {
-    auto colorPal = m_palettes[m_currentPalette].getPixelsPtr();
+    auto colorPal = m_currentPalette.getPixelsPtr();
     for (int y = 0; y < m_simHeight; y++)
     {
         for (int x = 0; x < m_simWidth; x++)
@@ -86,7 +118,6 @@ void FractalSet::AddWorker(Worker *worker)
 {
     worker->alive = true;
     worker->fractalArray = m_fractalArray;
-    worker->nWorkers = m_workers.size();
     worker->thread = std::thread(&FractalSet::Worker::Compute, worker);
     m_workers.push_back(worker);
 }
@@ -95,4 +126,11 @@ void FractalSet::SetComputeIteration(size_t iterations) noexcept
 {
     m_computeIterations = iterations;
     ReconstructImage();
+}
+
+void FractalSet::SetPalette(FractalSet::Palette palette) noexcept
+{
+    m_desiredPalette = palette;
+    m_colorTransitionTimer = 0.0f;
+    m_colorsStart = m_colorsCurrent;
 }

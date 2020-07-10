@@ -33,6 +33,8 @@ void FractalMgr::Update(sfg::Adjustment::Ptr cr, sfg::Adjustment::Ptr ci)
         m_fractalSets.at(m_activeFractalSet)->ReconstructImage();
     }
 
+    m_fractalSets[m_activeFractalSet]->Update();
+
     if (m_activeFractalSet == "Julia")
     {
         switch (m_juliaState)
@@ -77,7 +79,8 @@ void FractalMgr::Update(sfg::Adjustment::Ptr cr, sfg::Adjustment::Ptr ci)
             fractalSet->SetPalette(m_palette);
             fractalSet->ReconstructImage();
         }
-    } else if (!m_updatedThisFrame && m_iterations != m_iterationsGoal)
+    }
+    else if (!m_updatedThisFrame && m_iterations != m_iterationsGoal)
     {
         m_iterations = m_iterationsGoal;
         m_updatedThisFrame = true;
@@ -87,7 +90,8 @@ void FractalMgr::Update(sfg::Adjustment::Ptr cr, sfg::Adjustment::Ptr ci)
             fractalSet->Start(m_lastViewport);
             fractalSet->ReconstructImage();
         }
-    } else if (m_activeFractalSet == "Julia" && !m_updatedThisFrame && m_juliaC != m_juliaCGoal)
+    }
+    else if (m_activeFractalSet == "Julia" && !m_updatedThisFrame && m_juliaC != m_juliaCGoal)
     {
         auto julia = dynamic_cast<Julia *>(m_fractalSets["Julia"]);
         if (julia != nullptr)
